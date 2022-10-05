@@ -1,3 +1,4 @@
+using GoalspireBackend.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GoalspireBackend.Controllers

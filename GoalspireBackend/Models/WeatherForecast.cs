@@ -1,4 +1,4 @@
-namespace GoalspireBackend
+﻿namespace GoalspireBackend.Models
 {
     public class WeatherForecast
     {
