@@ -1,4 +1,6 @@
 
+using GoalspireBackend.Data;
+
 namespace GoalspireBackend
 {
     public class Program
@@ -9,6 +11,7 @@ namespace GoalspireBackend
 
             // Add services to the container.
 
+            builder.Services.AddDbContext<DataContext>();
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();

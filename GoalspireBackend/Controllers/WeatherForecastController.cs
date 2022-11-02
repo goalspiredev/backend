@@ -1,5 +1,7 @@
+using GoalspireBackend.Data;
 using GoalspireBackend.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace GoalspireBackend.Controllers
 {
@@ -13,22 +15,36 @@ namespace GoalspireBackend.Controllers
     };
 
         private readonly ILogger<WeatherForecastController> _logger;
+        private readonly DataContext _data;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, DataContext data)
         {
             _logger = logger;
+            _data = data;
         }
 
         [HttpGet(Name = "GetWeatherForecast")]
-        public IEnumerable<WeatherForecast> Get()
+        public async Task<List<Goal>> Get()
         {
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            var goal = new Goal
             {
-                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                TemperatureC = Random.Shared.Next(-20, 55),
-                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-            })
-            .ToArray();
+                Id = Guid.NewGuid(),
+                CreatedAt = default,
+                UpdatedAt = default,
+                UserId = default,
+                Type = GoalType.Goal,
+                Title = "testing",
+                Content = "content content",
+                Priority = 5,
+                EndsAt = DateTime.UtcNow + TimeSpan.FromDays(1),
+                IsCompleted = false,
+                IsPublic = false
+            };
+
+            await _data.Goals.AddAsync(goal);
+            await _data.SaveChangesAsync();
+
+            return await _data.Goals.ToListAsync();
         }
     }
 }
