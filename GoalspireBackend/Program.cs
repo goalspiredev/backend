@@ -17,6 +17,14 @@ namespace GoalspireBackend
 
             // Add services to the container.
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy(name: "GoalspireCorsPolicy", policy =>
+                {
+                    policy.WithOrigins("https://goalspire.net", "https://test.goalspire.net", "https://dev.goalspire.net", "https://docs.goalspire.net");
+                });
+            });
+
             builder.Services.AddDbContext<DataContext>();
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -75,8 +83,9 @@ namespace GoalspireBackend
 
             app.UseHttpsRedirection();
 
-            app.UseAuthorization();
+            app.UseCors("GoalspireCorsPolicy");
 
+            app.UseAuthorization();
 
             app.MapControllers();
 
