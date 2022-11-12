@@ -9,7 +9,6 @@ public class AuthController : ApiBaseController
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public ActionResult Login()
     {
         throw new NotImplementedException();
@@ -26,7 +25,7 @@ public class AuthController : ApiBaseController
 
     [HttpPost("logout")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)] //idk tbh, ale co vratit, kdyz tohle zavola nekdo zvenku se spatnym tokenem? Bud tohle, nebo 404
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public ActionResult Logout()
     {
         throw new NotImplementedException();
@@ -35,7 +34,6 @@ public class AuthController : ApiBaseController
     [HttpGet("user-info")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public ActionResult UserInfo()
     {
         throw new NotImplementedException();
