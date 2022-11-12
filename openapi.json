@@ -4,8 +4,18 @@
     "title": "Goalspire API",
     "version": "1"
   },
+  "servers": [
+    {
+      "url": "https://api.goalspire.net",
+      "description": "Production API"
+    },
+    {
+      "url": "https://api.test.goalspire.net/",
+      "description": "Testing API"
+    }
+  ],
   "paths": {
-    "/api/v1/Auth/login": {
+    "/v1/Auth/login": {
       "post": {
         "tags": [
           "Auth"
@@ -57,7 +67,7 @@
         }
       }
     },
-    "/api/v1/Auth/register": {
+    "/v1/Auth/register": {
       "post": {
         "tags": [
           "Auth"
@@ -89,7 +99,7 @@
         }
       }
     },
-    "/api/v1/Auth/logout": {
+    "/v1/Auth/logout": {
       "post": {
         "tags": [
           "Auth"
@@ -121,7 +131,7 @@
         }
       }
     },
-    "/api/v1/Auth/user-info": {
+    "/v1/Auth/user-info": {
       "get": {
         "tags": [
           "Auth"
@@ -153,7 +163,7 @@
         }
       }
     },
-    "/api/v1/Auth/forgot-password": {
+    "/v1/Auth/forgot-password": {
       "post": {
         "tags": [
           "Auth"
@@ -185,7 +195,7 @@
         }
       }
     },
-    "/api/v1/Auth/confirm-email": {
+    "/v1/Auth/confirm-email": {
       "get": {
         "tags": [
           "Auth"
@@ -217,7 +227,7 @@
         }
       }
     },
-    "/api/v1/Auth/reset-password": {
+    "/v1/Auth/reset-password": {
       "post": {
         "tags": [
           "Auth"
@@ -269,7 +279,7 @@
         }
       }
     },
-    "/api/v1/Dashboard": {
+    "/v1/Dashboard": {
       "get": {
         "tags": [
           "Dashboard"
@@ -301,7 +311,7 @@
         }
       }
     },
-    "/api/v1/Newsletter/subscribe": {
+    "/v1/Newsletter/subscribe": {
       "post": {
         "tags": [
           "Newsletter"
@@ -333,7 +343,7 @@
         }
       }
     },
-    "/api/v1/Newsletter/unsubscribe": {
+    "/v1/Newsletter/unsubscribe": {
       "post": {
         "tags": [
           "Newsletter"
@@ -365,7 +375,7 @@
         }
       }
     },
-    "/api/v1/Settings": {
+    "/v1/Settings": {
       "get": {
         "tags": [
           "Settings"
@@ -447,7 +457,7 @@
         }
       }
     },
-    "/api/v1/Tasks": {
+    "/v1/Tasks": {
       "get": {
         "tags": [
           "Tasks"
@@ -529,7 +539,7 @@
         }
       }
     },
-    "/api/v1/Tasks/{id}": {
+    "/v1/Tasks/{id}": {
       "get": {
         "tags": [
           "Tasks"
