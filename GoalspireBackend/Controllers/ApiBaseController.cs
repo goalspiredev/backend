@@ -3,7 +3,7 @@
 namespace GoalspireBackend.Controllers;
 
 [ApiController]
-[Route("api/v{version:apiVersion}/[controller]")]
+[Route("v{version:apiVersion}/[controller]")]
 public class ApiBaseController : ControllerBase
 {
     

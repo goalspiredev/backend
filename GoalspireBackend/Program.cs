@@ -4,6 +4,7 @@ using GoalspireBackend.Data;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.Extensions.Options;
+using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace GoalspireBackend
@@ -38,6 +39,18 @@ namespace GoalspireBackend
             builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, SwaggerConfigureOptions>();
             builder.Services.AddSwaggerGen(c =>
             {
+                c.AddServer(new OpenApiServer
+                {
+                    Description = "Production API",
+                    Url = "https://api.goalspire.net",
+                });
+                
+                c.AddServer(new OpenApiServer
+                {
+                    Description = "Testing API",
+                    Url = "https://api.test.goalspire.net/",
+                });
+                
                 var filePath = Path.Combine(AppContext.BaseDirectory, "GoalspireBackend.xml");
                 c.IncludeXmlComments(filePath);
             });
