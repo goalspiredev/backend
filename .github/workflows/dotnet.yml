@@ -47,7 +47,7 @@ jobs:
       with:
         dotnet-version: 6.0.x # Change to 7.0.x later
     - name: Install Swashbuckle CLI
-      run: dotnet tool install --version 6.4.0 Swashbuckle.AspNetCore.Cli
+      run: dotnet tool install --version 6.4.0 --global Swashbuckle.AspNetCore.Cli
     - name: Generate OpenAPI
       run: dotnet swagger tofile --output openapi.json build/GoalspireBackend.dll v1
     - name: Generate Swagger UI
