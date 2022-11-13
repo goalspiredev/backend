@@ -196,7 +196,7 @@
       }
     },
     "/v1/Auth/confirm-email": {
-      "get": {
+      "post": {
         "tags": [
           "Auth"
         ],
