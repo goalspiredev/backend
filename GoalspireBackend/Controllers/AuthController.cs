@@ -47,7 +47,7 @@ public class AuthController : ApiBaseController
         throw new NotImplementedException();
     }
     
-    [HttpGet("confirm-email")]
+    [HttpPost("confirm-email")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public ActionResult ConfirmEmail()
