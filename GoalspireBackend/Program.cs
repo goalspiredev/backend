@@ -30,6 +30,9 @@ namespace GoalspireBackend
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
 
+            builder.Services.AddHealthChecks()
+                .AddDbContextCheck<DataContext>();
+
             builder.Services.AddApiVersioning(o =>
             {
                 o.AssumeDefaultVersionWhenUnspecified = true;
@@ -88,6 +91,7 @@ namespace GoalspireBackend
             app.UseAuthorization();
 
             app.MapControllers();
+            app.MapHealthChecks("/health");
 
             app.Run();
         }
