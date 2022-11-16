@@ -43,9 +43,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Dto\Response\Auth" />
+    <Folder Include="Dto\Response\Email" />
     <Folder Include="Filters" />
     <Folder Include="Interfaces" />
-    <Folder Include="Services" />
   </ItemGroup>
 
 </Project>
