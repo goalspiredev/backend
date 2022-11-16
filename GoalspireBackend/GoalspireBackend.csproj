@@ -26,6 +26,8 @@
   </Target>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="5.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.0-rc.1.22427.2" />
@@ -41,9 +43,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Dto\Response\Auth" />
+    <Folder Include="Dto\Response\Email" />
     <Folder Include="Filters" />
     <Folder Include="Interfaces" />
-    <Folder Include="Services" />
   </ItemGroup>
 
 </Project>

@@ -1,6 +1,9 @@
 
 using GoalspireBackend.Common.Swagger;
 using GoalspireBackend.Data;
+using GoalspireBackend.Models;
+using GoalspireBackend.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.Extensions.Options;
@@ -26,6 +29,27 @@ namespace GoalspireBackend
             });
 
             builder.Services.AddDbContext<DataContext>();
+
+            builder.Services.AddIdentity<User, IdentityRole>(options =>
+                {
+                    options.SignIn.RequireConfirmedEmail = true;
+
+                    options.User.RequireUniqueEmail = true;
+
+                    options.Password.RequiredLength = 8;
+                    options.Password.RequiredUniqueChars = 3;
+                    options.Password.RequireNonAlphanumeric = false;
+                })
+                .AddEntityFrameworkStores<DataContext>()
+                .AddDefaultTokenProviders();
+
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                options.Cookie.HttpOnly = true;
+                options.ExpireTimeSpan = TimeSpan.FromDays(1);
+                options.SlidingExpiration = true;
+            });
+            
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -62,9 +86,18 @@ namespace GoalspireBackend
                     Url = "https://api.test.goalspire.net/",
                 });
                 
+                c.AddServer(new OpenApiServer
+                {
+                    Description = "Local API",
+                    Url = "https://localhost:7101/",
+                });
+                
                 var filePath = Path.Combine(AppContext.BaseDirectory, "GoalspireBackend.xml");
                 c.IncludeXmlComments(filePath);
             });
+            
+            builder.Services.AddTransient<IEmailService, EmailService>();
+            builder.Services.AddTransient<IAuthService, AuthService>();
 
             var app = builder.Build();
 
@@ -88,6 +121,7 @@ namespace GoalspireBackend
 
             app.UseCors("GoalspireCorsPolicy");
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();
