@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace GoalspireBackend.Controllers;
 
@@ -7,6 +8,7 @@ public class TasksController : ApiBaseController
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [Authorize]
     public ActionResult GetAllTasks()
     {
         throw new NotImplementedException();

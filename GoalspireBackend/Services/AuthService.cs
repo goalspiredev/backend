@@ -1,18 +1,23 @@
-﻿using System.Text;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using System.Text.Encodings.Web;
 using GoalspireBackend.Dto.Requests;
 using GoalspireBackend.Dto.Requests.Auth;
 using GoalspireBackend.Dto.Requests.Email;
+using GoalspireBackend.Dto.Response.Auth;
 using GoalspireBackend.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.IdentityModel.Tokens;
 
 namespace GoalspireBackend.Services;
 
 public interface IAuthService
 {
-    Task<IdentityResult> Login(LoginRequest request);
+    Task<LoginResponse> Login(LoginRequest request);
     Task<IdentityResult> Register(RegisterRequest request);
+    Task Logout();
 }
 
 public class AuthService : IAuthService
@@ -20,17 +25,57 @@ public class AuthService : IAuthService
     private readonly UserManager<User> _userManager;
     private readonly IConfiguration _configuration;
     private readonly IEmailService _emailService;
+    private readonly SignInManager<User> _signInManager;
 
-    public AuthService(UserManager<User> userManager, IConfiguration configuration, IEmailService emailService)
+    public AuthService(UserManager<User> userManager, IConfiguration configuration, IEmailService emailService, SignInManager<User> signInManager)
     {
         _userManager = userManager;
         _configuration = configuration;
         _emailService = emailService;
+        _signInManager = signInManager;
     }
 
-    public Task<IdentityResult> Login(LoginRequest request)
+    public async Task Logout()
     {
-        throw new NotImplementedException();
+        await _signInManager.SignOutAsync();
+    }
+
+    public async Task<LoginResponse> Login(LoginRequest request)
+    {
+        var user = await _userManager.FindByNameAsync(request.Login);
+        if (user == null)
+        {
+            return new LoginResponse
+            {
+                Succeeded = false
+            };
+        }
+        
+        var result = await _signInManager.PasswordSignInAsync(user, request.Password, request.RememberMe, false);
+        if (!result.Succeeded)
+        {
+            return new LoginResponse
+            {
+                Succeeded = false
+            };
+        }
+        
+       
+        var authClaims = new List<Claim>
+        {
+            new Claim("id", user.Id),
+            new Claim("name", user.UserName),
+            new Claim("email", user.Email),
+            
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+        };
+
+        var token = GetToken(authClaims);
+        return new LoginResponse
+        {
+            Succeeded = true,
+            Token = new JwtSecurityTokenHandler().WriteToken(token)
+        };
     }
 
     public async Task<IdentityResult> Register(RegisterRequest request)
@@ -58,5 +103,20 @@ public class AuthService : IAuthService
         }
 
         return result;
+    }
+    
+    private JwtSecurityToken GetToken(IEnumerable<Claim> authClaims)
+    {
+        var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]!));
+
+        var token = new JwtSecurityToken(
+            issuer: _configuration["JWT:ValidIssuer"],
+            audience: _configuration["JWT:ValidAudience"],
+            expires: DateTime.Now.AddDays(30),
+            claims: authClaims,
+            signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
+        );
+
+        return token;
     }
 }

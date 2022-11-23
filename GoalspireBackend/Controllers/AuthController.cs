@@ -20,9 +20,15 @@ public class AuthController : ApiBaseController
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public ActionResult Login()
+    public async Task<ActionResult> Login([FromBody] LoginRequest request)
     {
-        throw new NotImplementedException();
+        var response = await _authService.Login(request);
+        if (!response.Succeeded)
+        {
+            return Forbid();
+        }
+
+        return Ok(response);
     }
 
     [HttpPost("register")]
@@ -44,9 +50,10 @@ public class AuthController : ApiBaseController
     [HttpPost("logout")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public ActionResult Logout()
+    public async Task<ActionResult> Logout()
     {
-        throw new NotImplementedException();
+        await _authService.Logout();
+        return Ok();
     }
     
     [HttpGet("user-info")]
