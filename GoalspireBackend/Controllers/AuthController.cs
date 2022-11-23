@@ -1,6 +1,7 @@
 ﻿using GoalspireBackend.Dto.Requests.Auth;
 using GoalspireBackend.Dto.Response;
 using GoalspireBackend.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -47,18 +48,19 @@ public class AuthController : ApiBaseController
     }
     
 
-    [HttpPost("logout")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult> Logout()
-    {
-        await _authService.Logout();
-        return Ok();
-    }
+    //[HttpPost("logout")]
+    //[ProducesResponseType(StatusCodes.Status200OK)]
+    //[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    //public async Task<ActionResult> Logout()
+    //{
+    //    await _authService.Logout();
+    //    return Ok();
+    //}
     
     [HttpGet("user-info")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [Authorize]
     public ActionResult UserInfo()
     {
         throw new NotImplementedException();
@@ -67,6 +69,7 @@ public class AuthController : ApiBaseController
     [HttpPost("forgot-password")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [Authorize]
     public ActionResult ForgotPassword()
     {
         throw new NotImplementedException();
@@ -84,6 +87,7 @@ public class AuthController : ApiBaseController
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [Authorize]
     public ActionResult ResetPassword()
     {
         throw new NotImplementedException();

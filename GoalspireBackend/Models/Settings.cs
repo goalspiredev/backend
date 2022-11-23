@@ -1,4 +1,6 @@
-﻿namespace GoalspireBackend.Models;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace GoalspireBackend.Models;
 
 public enum GoalVisibility
 {
@@ -7,6 +9,7 @@ public enum GoalVisibility
 
 public class Settings
 {
+    [Key]
     public Guid UserId { get; set; }
     public bool ReducedAnimations { get; set; }// = false;
     public TimeSpan DefaultSnoozeDuration { get; set; }// = TimeSpan.FromMinutes(30);

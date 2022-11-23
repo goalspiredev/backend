@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GoalspireBackend.Controllers;
 
+[ApiVersion("1")]
 public class TasksController : ApiBaseController
 {
     [HttpGet]
@@ -28,6 +29,7 @@ public class TasksController : ApiBaseController
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [Authorize]
     public ActionResult CreateTask()
     {
         throw new NotImplementedException();
@@ -39,6 +41,7 @@ public class TasksController : ApiBaseController
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize]
     public ActionResult UpdateTask(Guid id)
     {
         throw new NotImplementedException();
@@ -49,6 +52,7 @@ public class TasksController : ApiBaseController
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize]
     public ActionResult DeleteTask(Guid id)
     {
         throw new NotImplementedException();

@@ -2,6 +2,7 @@
 
 namespace GoalspireBackend.Controllers;
 
+[ApiVersion("1")]
 public class NewsletterController : ApiBaseController
 {
     [HttpPost("subscribe")]
