@@ -170,8 +170,6 @@ namespace GoalspireBackend
                 });
             }
 
-            app.UseHttpsRedirection();
-
             app.UseCors("GoalspireCorsPolicy");
 
             app.UseAuthentication();
