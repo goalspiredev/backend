@@ -3,7 +3,7 @@ using System.Net;
 using System.Net.Mail;
 using System.Text;
 using FluentEmail.Core;
-using FluentEmail.Smtp;
+using FluentEmail.MailKitSmtp;
 using GoalspireBackend.Common.Swagger;
 using GoalspireBackend.Data;
 using GoalspireBackend.Models;
@@ -76,18 +76,18 @@ namespace GoalspireBackend
                 options.ExpireTimeSpan = TimeSpan.FromDays(1);
                 options.SlidingExpiration = true;
             });
-            
-            var client = new SmtpClient();
-            client.Credentials = new NetworkCredential(builder.Configuration["SMTP:Username"], builder.Configuration["SMTP:Password"]);
-            client.Host = builder.Configuration["SMTP:Host"];
-            client.Port = builder.Configuration.GetValue<int>("SMTP:Port");
-            client.EnableSsl = true;
 
-            Email.DefaultSender = new SmtpSender(client);
-            
             builder.Services
                 .AddFluentEmail("no-reply@goalspire.net", "Goalspire")
-                .AddSmtpSender(client);
+                .AddMailKitSender(new SmtpClientOptions
+                {
+                    Server = builder.Configuration["SMTP:Host"],
+                    Port = builder.Configuration.GetValue<int>("SMTP:Port"),
+                    User = builder.Configuration["SMTP:Username"],
+                    Password = builder.Configuration["SMTP:Password"],
+                    UseSsl = true,
+                    RequiresAuthentication = true,
+                });
             
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
