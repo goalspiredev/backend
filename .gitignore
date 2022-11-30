@@ -365,3 +365,8 @@ FodyWeavers.xsd
 # Rider stuff
 .idea/
 encodings.xml
+
+# Secret stuff
+GoalspireBackend/appsettings.json
+GoalspireBackend/appsettings.Development.json
+GoalspireBackend/appsettings.Production.json

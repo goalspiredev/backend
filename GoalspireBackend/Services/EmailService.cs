@@ -1,4 +1,5 @@
-﻿using GoalspireBackend.Common;
+﻿using FluentEmail.Core;
+using GoalspireBackend.Common;
 using GoalspireBackend.Dto.Requests.Email;
 
 namespace GoalspireBackend.Services;
@@ -11,17 +12,33 @@ public interface IEmailService
 public class EmailService : IEmailService
 {
     private readonly ILogger<EmailService> _logger;
+    private readonly IFluentEmail _email;
 
-    public EmailService(ILogger<EmailService> logger)
+    public EmailService(ILogger<EmailService> logger, IFluentEmail email)
     {
         _logger = logger;
+        _email = email;
     }
 
-    public Task<Result> SendEmail(SendEmailRequest request)
+    public async Task<Result> SendEmail(SendEmailRequest request)
     {
         _logger.LogInformation($"Sending an email to {request.Email} with title: {request.Title}");
-        _logger.LogInformation("Email body: {0}", request.Content);
 
-        return Task.FromResult(Result.Success);
+        var email = await _email
+            .To(request.Email)
+            .Subject(request.Title)
+            .Body(request.Content)
+            .SendAsync();
+
+        if (!email.Successful)
+        {
+            return new Result
+            {
+                Succeeded = false,
+                Error = string.Join(", ", email.ErrorMessages)
+            };
+        }
+
+        return Result.Success;
     }
 }
