@@ -1,5 +1,6 @@
 ﻿using GoalspireBackend.Dto.Requests.Auth;
 using GoalspireBackend.Dto.Response;
+using GoalspireBackend.Dto.Response.Auth;
 using GoalspireBackend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -21,7 +22,7 @@ public class AuthController : ApiBaseController
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<ActionResult> Login([FromBody] LoginRequest request)
+    public async Task<ActionResult<LoginResponse>> Login([FromBody] LoginRequest request)
     {
         var response = await _authService.Login(request);
         if (!response.Succeeded)
