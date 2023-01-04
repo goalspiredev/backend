@@ -42,6 +42,7 @@ public class AuthService : IAuthService
 
     public async Task<LoginResponse> Login(LoginRequest request)
     {
+        //get the user from db
         var user = await _userManager.FindByNameAsync(request.Login);
         if (user == null)
         {
@@ -51,6 +52,7 @@ public class AuthService : IAuthService
             };
         }
         
+        //sign in the user
         var result = await _signInManager.PasswordSignInAsync(user, request.Password, request.RememberMe, false);
         if (!result.Succeeded)
         {
@@ -60,7 +62,7 @@ public class AuthService : IAuthService
             };
         }
         
-       
+        //setting up the JWT token
         var authClaims = new List<Claim>
         {
             new Claim("id", user.Id),
@@ -89,16 +91,21 @@ public class AuthService : IAuthService
         var result = await _userManager.CreateAsync(user, request.Password);
         if (result.Succeeded)
         {
+            //sending the email
             var emailConfirmCode = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             var encodedCode = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(emailConfirmCode));
             var encodedEmail = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(user.Email));
 
-            var confirmUrl = HtmlEncoder.Default.Encode($"{_configuration["App:BaseUrl"]}/auth/confirm-email?code={encodedCode}&email=${encodedEmail}");
+            var confirmUrl = HtmlEncoder.Default.Encode($"{_configuration["App:BaseUrl"]}/auth/confirm-email?code={encodedCode}&email={encodedEmail}");
+            string confirmEmailHtmlPath = "./EmailTemplates/VerifyEmail.html";
+
             await _emailService.SendEmail(new SendEmailRequest
             {
                 Email = user.Email,
                 Title = "Email confirmation",
-                Content = $"Hi {user.UserName}, your verification link is: {confirmUrl}"
+                //Content = $"Hi {user.UserName}, your verification link is: {confirmUrl}" //%%user%% 
+                Content = System.IO.File.ReadAllText(confirmEmailHtmlPath).Replace("%%UserName%%", user.UserName).Replace("%%confirmUrl%%", confirmUrl),
+                IsHtml = true
             });
         }
 
@@ -107,6 +114,7 @@ public class AuthService : IAuthService
     
     private JwtSecurityToken GetToken(IEnumerable<Claim> authClaims)
     {
+        //create a signing key from the secret
         var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]!));
 
         var token = new JwtSecurityToken(

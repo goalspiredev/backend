@@ -95,6 +95,7 @@ public class AuthController : ApiBaseController
     }
 }
 
+//  Example of how a v2 api would be implemented
 // [ApiVersion("2")]
 // public class AuthController : ApiBaseController
 // {

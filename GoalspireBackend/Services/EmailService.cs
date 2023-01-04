@@ -27,11 +27,12 @@ public class EmailService : IEmailService
         var email = await _email
             .To(request.Email)
             .Subject(request.Title)
-            .Body(request.Content)
+            .Body(request.Content, request.IsHtml)
             .SendAsync();
 
         if (!email.Successful)
         {
+            throw new Exception(string.Join("; ", email.ErrorMessages));
             return new Result
             {
                 Succeeded = false,

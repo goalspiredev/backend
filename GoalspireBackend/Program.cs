@@ -37,6 +37,7 @@ namespace GoalspireBackend
 
             builder.Services.AddDbContext<DataContext>();
 
+            //all the stuff about handling users and their logins
             builder.Services.AddIdentity<User, IdentityRole>(options =>
                 {
                     options.SignIn.RequireConfirmedEmail = false; //TODO: turn on in prod
@@ -54,7 +55,7 @@ namespace GoalspireBackend
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme; 
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             })
                 .AddJwtBearer(options =>
                 {
@@ -77,6 +78,7 @@ namespace GoalspireBackend
                 options.SlidingExpiration = true;
             });
 
+            //seeting up the SMTP service for sending emails
             builder.Services
                 .AddFluentEmail("no-reply@goalspire.net", "Goalspire")
                 .AddMailKitSender(new SmtpClientOptions
@@ -88,7 +90,7 @@ namespace GoalspireBackend
                     UseSsl = true,
                     RequiresAuthentication = true,
                 });
-            
+
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -103,13 +105,13 @@ namespace GoalspireBackend
                 o.ReportApiVersions = true;
                 o.ApiVersionReader = new UrlSegmentApiVersionReader();
             });
-            
+
             builder.Services.AddVersionedApiExplorer(options =>
             {
                 options.GroupNameFormat = "'v'VVV";
                 options.SubstituteApiVersionInUrl = true;
             });
-            
+
             builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, SwaggerConfigureOptions>();
             builder.Services.AddSwaggerGen(c =>
             {
@@ -118,19 +120,19 @@ namespace GoalspireBackend
                     Description = "Production API",
                     Url = "https://api.goalspire.net",
                 });
-                
+
                 c.AddServer(new OpenApiServer
                 {
                     Description = "Testing API",
                     Url = "https://api.test.goalspire.net/",
                 });
-                
+
                 c.AddServer(new OpenApiServer
                 {
                     Description = "Local API",
                     Url = "https://localhost:7101/",
                 });
-                
+
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Description = @"JWT Authorization header using the Bearer scheme. \r\n\r\n 
@@ -160,11 +162,11 @@ namespace GoalspireBackend
                         new List<string>()
                     }
                 });
-                
+
                 var filePath = Path.Combine(AppContext.BaseDirectory, "GoalspireBackend.xml");
                 c.IncludeXmlComments(filePath);
             });
-            
+
             builder.Services.AddTransient<IEmailService, EmailService>();
             builder.Services.AddTransient<IAuthService, AuthService>();
 
