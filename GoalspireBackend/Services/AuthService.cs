@@ -51,7 +51,7 @@ public class AuthService : IAuthService
                 Succeeded = false
             };
         }
-        
+
         //sign in the user
         var result = await _signInManager.PasswordSignInAsync(user, request.Password, request.RememberMe, false);
         if (!result.Succeeded)
@@ -61,18 +61,19 @@ public class AuthService : IAuthService
                 Succeeded = false
             };
         }
-        
+
         //setting up the JWT token
         var authClaims = new List<Claim>
         {
             new Claim("id", user.Id),
             new Claim("name", user.UserName),
             new Claim("email", user.Email),
-            
+
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
         };
 
-        var token = GetToken(authClaims);
+        var token = GetToken(authClaims, request.RememberMe ? DateTime.Now.AddDays(30) : DateTime.Now.AddHours(6));
+
         return new LoginResponse
         {
             Succeeded = true,
@@ -103,16 +104,15 @@ public class AuthService : IAuthService
             {
                 Email = user.Email,
                 Title = "Email confirmation",
-                //Content = $"Hi {user.UserName}, your verification link is: {confirmUrl}" //%%user%% 
-                Content = System.IO.File.ReadAllText(confirmEmailHtmlPath).Replace("%%UserName%%", user.UserName).Replace("%%confirmUrl%%", confirmUrl),
+                Content = File.ReadAllText(confirmEmailHtmlPath).Replace("%%UserName%%", user.UserName).Replace("%%confirmUrl%%", confirmUrl),
                 IsHtml = true
             });
         }
 
         return result;
     }
-    
-    private JwtSecurityToken GetToken(IEnumerable<Claim> authClaims)
+
+    private JwtSecurityToken GetToken(IEnumerable<Claim> authClaims, DateTime expiration)
     {
         //create a signing key from the secret
         var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]!));
@@ -120,7 +120,7 @@ public class AuthService : IAuthService
         var token = new JwtSecurityToken(
             issuer: _configuration["JWT:ValidIssuer"],
             audience: _configuration["JWT:ValidAudience"],
-            expires: DateTime.Now.AddDays(30),
+            expires: expiration,
             claims: authClaims,
             signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
         );
