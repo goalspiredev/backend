@@ -6,16 +6,16 @@
   },
   "servers": [
     {
-      "url": "https://api.goalspire.net",
-      "description": "Production API"
+      "url": "https://localhost:7101/",
+      "description": "Local API"
     },
     {
       "url": "https://api.test.goalspire.net/",
       "description": "Testing API"
     },
     {
-      "url": "https://localhost:7101/",
-      "description": "Local API"
+      "url": "https://api.goalspire.net",
+      "description": "Production API"
     }
   ],
   "paths": {
