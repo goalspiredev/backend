@@ -49,14 +49,14 @@ public class EmailService : IEmailService
         string confirmEmailHtmlPath = "./EmailTemplates/VerifyEmail.html";
         string confirmEmailTxtPath = "./EmailTemplates/VerifyEmail.txt";
 
+
+
         Result res = await SendEmail(new SendEmailRequest
         {
             Email = request.Email,
             Title = request.Title,
             IsHtml = request.IsHtml,
-            Content = request.IsHtml
-                        ? File.ReadAllText(confirmEmailHtmlPath).Replace("%%UserName%%", request.UserName).Replace("%%confirmUrl%%", request.ConfirmURL)
-                        : File.ReadAllText(confirmEmailTxtPath).Replace("%%UserName%%", request.UserName).Replace("%%confirmUrl%%", request.ConfirmURL)
+            Content = File.ReadAllText(request.IsHtml ? confirmEmailHtmlPath : confirmEmailTxtPath).Replace("%%UserName%%", request.UserName).Replace("%%confirmUrl%%", request.ConfirmURL)
         });
         return res;
     }
