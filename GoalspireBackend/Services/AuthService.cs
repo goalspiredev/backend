@@ -117,13 +117,12 @@ public class AuthService : IAuthService
             var encodedEmail = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(user.Email));
 
             var confirmUrl = HtmlEncoder.Default.Encode($"{_configuration["App:BaseUrl"]}/auth/confirm-email?code={encodedCode}&email={encodedEmail}");
-            string confirmEmailHtmlPath = "./EmailTemplates/VerifyEmail.html";
 
-            await _emailService.SendEmail(new SendEmailRequest
+            await _emailService.SendEmailConfirmationEmail(new SendEmailVerificationEmailRequest
             {
                 Email = user.Email,
-                Title = "Email confirmation",
-                Content = File.ReadAllText(confirmEmailHtmlPath).Replace("%%UserName%%", user.UserName).Replace("%%confirmUrl%%", confirmUrl),
+                UserName = user.UserName,
+                ConfirmURL = confirmUrl,
                 IsHtml = true
             });
         }

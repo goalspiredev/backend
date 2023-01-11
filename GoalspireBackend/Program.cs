@@ -115,6 +115,23 @@ namespace GoalspireBackend
             builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, SwaggerConfigureOptions>();
             builder.Services.AddSwaggerGen(c =>
             {
+#if DEBUG
+                c.AddServer(new OpenApiServer
+                {
+                    Description = "Local API",
+                    Url = "https://localhost:7101/",
+                });
+                c.AddServer(new OpenApiServer
+                {
+                    Description = "Testing API",
+                    Url = "https://api.test.goalspire.net/",
+                });
+                c.AddServer(new OpenApiServer
+                {
+                    Description = "Production API",
+                    Url = "https://api.goalspire.net",
+                });
+#else
                 c.AddServer(new OpenApiServer
                 {
                     Description = "Production API",
@@ -132,6 +149,7 @@ namespace GoalspireBackend
                     Description = "Local API",
                     Url = "https://localhost:7101/",
                 });
+#endif
 
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {

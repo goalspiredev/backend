@@ -1,0 +1,2 @@
+﻿Hi %%UserName%%,
+Your verification link is %%confirmUrl%%
