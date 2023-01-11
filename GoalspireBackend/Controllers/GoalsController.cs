@@ -1,18 +1,29 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using GoalspireBackend.Common;
+using GoalspireBackend.Data;
+using GoalspireBackend.Models;
+using GoalspireBackend.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GoalspireBackend.Controllers;
 
 [ApiVersion("1")]
-public class TasksController : ApiBaseController
+public class GoalsController : ApiBaseController
 {
+    private readonly IGoalsService _goalService;
+
+    public GoalsController(IGoalsService goalService)
+    {
+        _goalService = goalService;
+    }
+
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [Authorize]
-    public ActionResult GetAllTasks()
+    public async Task<ActionResult<List<Goal>>> GetAllGoals()
     {
-        throw new NotImplementedException();
+        return await _goalService.GetAllGoals();
     }
     
     [HttpGet("{id}")]
@@ -20,9 +31,9 @@ public class TasksController : ApiBaseController
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public ActionResult GetTask(Guid id)
+    public async Task<ActionResult<Goal?>> GetGoal([FromRoute] Guid id)
     {
-        throw new NotImplementedException();
+        return await _goalService.GetGoal(id);
     }
     
     [HttpPost]
@@ -30,9 +41,9 @@ public class TasksController : ApiBaseController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [Authorize]
-    public ActionResult CreateTask()
+    public async Task<ActionResult<Goal>> CreateGoal([FromBody] Goal goal)
     {
-        throw new NotImplementedException();
+        return await _goalService.CreateGoal(goal);
     }
     
     [HttpPut("{id}")]
@@ -42,9 +53,9 @@ public class TasksController : ApiBaseController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize]
-    public ActionResult UpdateTask(Guid id)
+    public async Task<ActionResult<Goal>> UpdateGoal([FromRoute] Guid id, [FromBody] Goal goal)
     {
-        throw new NotImplementedException();
+        return await _goalService.UpdateGoal(id, goal);
     }
     
     [HttpDelete("{id}")]
@@ -53,8 +64,8 @@ public class TasksController : ApiBaseController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize]
-    public ActionResult DeleteTask(Guid id)
+    public async Task<ActionResult<Result>> DeleteGoal([FromRoute] Guid id)
     {
-        throw new NotImplementedException();
+        return await _goalService.DeleteGoal(id);
     }
 }

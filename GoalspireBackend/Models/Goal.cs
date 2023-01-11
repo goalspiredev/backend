@@ -10,7 +10,7 @@ public enum GoalType
 
 public class Goal : AuditableEntity
 {
-    public Guid UserId { get; init; }
+    public Guid UserId { get; set; }
     
     public GoalType Type { get; set; }
 
