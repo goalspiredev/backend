@@ -1,4 +1,5 @@
-﻿using GoalspireBackend.Dto.Requests.Auth;
+﻿using GoalspireBackend.Common;
+using GoalspireBackend.Dto.Requests.Auth;
 using GoalspireBackend.Dto.Response;
 using GoalspireBackend.Dto.Response.Auth;
 using GoalspireBackend.Services;
@@ -79,9 +80,15 @@ public class AuthController : ApiBaseController
     [HttpPost("confirm-email")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public ActionResult ConfirmEmail()
+    public async Task<ActionResult<Result>> ConfirmEmail(ConfirmEmailRequest request)
     {
-        throw new NotImplementedException();
+        var result = await _authService.ConfirmEmail(request);
+        if (result.Succeeded)
+        {
+            return Ok(result);
+        }
+
+        return BadRequest(result);
     }
     
     [HttpPost("reset-password")]

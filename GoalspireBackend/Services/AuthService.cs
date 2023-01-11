@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
+using GoalspireBackend.Common;
 using GoalspireBackend.Dto.Requests;
 using GoalspireBackend.Dto.Requests.Auth;
 using GoalspireBackend.Dto.Requests.Email;
@@ -17,6 +18,7 @@ public interface IAuthService
 {
     Task<LoginResponse> Login(LoginRequest request);
     Task<IdentityResult> Register(RegisterRequest request);
+    Task<Result> ConfirmEmail(ConfirmEmailRequest request);
     Task Logout();
 }
 
@@ -33,6 +35,23 @@ public class AuthService : IAuthService
         _configuration = configuration;
         _emailService = emailService;
         _signInManager = signInManager;
+    }
+
+    public async Task<Result> ConfirmEmail(ConfirmEmailRequest request)
+    {
+        var user = await _userManager.FindByEmailAsync(request.Email);
+        if (user == null)
+        {
+            return Result.Failure("User does not exist.");
+        }
+
+        var result = await _userManager.ConfirmEmailAsync(user, request.Token);
+        if (result.Succeeded)
+        {
+            return Result.Success;
+        }
+
+        return Result.Failure(result.Errors.First().Description);
     }
 
     public async Task Logout()

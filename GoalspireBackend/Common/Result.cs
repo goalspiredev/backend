@@ -6,4 +6,13 @@ public class Result
     public string? Error { get; set; }
 
     public static Result Success => new Result { Succeeded = true };
+
+    public static Result Failure(string error)
+    {
+        return new Result
+        {
+            Succeeded = false,
+            Error = error
+        };
+    }
 }
