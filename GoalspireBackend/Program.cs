@@ -189,6 +189,8 @@ namespace GoalspireBackend
             builder.Services.AddTransient<IEmailService, EmailService>();
             builder.Services.AddTransient<IAuthService, AuthService>();
 
+            builder.Services.AddTransient<IGoalsService, GoalsService>();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
