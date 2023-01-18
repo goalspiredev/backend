@@ -20,6 +20,7 @@ public interface IAuthService
     Task<IdentityResult> Register(RegisterRequest request);
     Task<Result> ConfirmEmail(ConfirmEmailRequest request);
     Task Logout();
+    Task<Result> ResetPassword(ForgotPasswordRequest request);
 }
 
 public class AuthService : IAuthService
@@ -48,7 +49,7 @@ public class AuthService : IAuthService
         var result = await _userManager.ConfirmEmailAsync(user, request.Token);
         if (result.Succeeded)
         {
-            return Result.Success;
+            return Result.Success();
         }
 
         return Result.Failure(result.Errors.First().Description);
@@ -130,6 +131,8 @@ public class AuthService : IAuthService
         return result;
     }
 
+
+
     private JwtSecurityToken GetToken(IEnumerable<Claim> authClaims, DateTime expiration)
     {
         //create a signing key from the secret
@@ -144,5 +147,27 @@ public class AuthService : IAuthService
         );
 
         return token;
+    }
+
+    public async Task<Result> ResetPassword(ForgotPasswordRequest request)
+    { 
+        var user = await _userManager.FindByEmailAsync(request.Email);
+        if (user is null)
+        {
+            return Result.Failure("User not found");
+        }
+
+        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+        var resetUrl = ""; //TODO: craft the url
+
+        await _emailService.SendForgotPasswordEmail(new ForgotPasswordEmailRequest
+        {
+            Email = request.Email,
+            ResetUrl = resetUrl,
+            UserName = user.UserName!,
+        });
+
+        return Result.Success();
     }
 }

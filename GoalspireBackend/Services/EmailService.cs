@@ -11,6 +11,8 @@ public interface IEmailService
 {
     Task<Result> SendEmail(SendEmailRequest request);
     Task<Result> SendEmailConfirmationEmail(SendEmailVerificationEmailRequest request);
+
+    Task<Result> SendForgotPasswordEmail(ForgotPasswordEmailRequest request);
 }
 
 public class EmailService : IEmailService
@@ -41,14 +43,13 @@ public class EmailService : IEmailService
             return Result.Failure(string.Join(", ", email.ErrorMessages));
         }
 
-        return Result.Success;
+        return Result.Success();
     }
 
     public async Task<Result> SendEmailConfirmationEmail(SendEmailVerificationEmailRequest request)
     {
         string confirmEmailHtmlPath = "./EmailTemplates/VerifyEmail.html";
         string confirmEmailTxtPath = "./EmailTemplates/VerifyEmail.txt";
-
 
 
         Result res = await SendEmail(new SendEmailRequest
@@ -59,5 +60,17 @@ public class EmailService : IEmailService
             Content = File.ReadAllText(request.IsHtml ? confirmEmailHtmlPath : confirmEmailTxtPath).Replace("%%UserName%%", request.UserName).Replace("%%confirmUrl%%", request.ConfirmURL)
         });
         return res;
+    }
+
+    public async Task<Result> SendForgotPasswordEmail(ForgotPasswordEmailRequest request)
+    {
+        string forgotPasswordHtmlEmail = "./EmailTemplates/ForgotPassword.html";
+
+        return await SendEmail(new SendEmailRequest
+        {
+            Email = request.Email,
+            Title = "Reset your password",
+            Content = File.ReadAllText(forgotPasswordHtmlEmail).Replace("%%ResetUrl%%", request.ResetUrl).Replace("%%UserName%%", request.UserName)
+        });
     }
 }

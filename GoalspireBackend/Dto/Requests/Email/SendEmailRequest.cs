@@ -17,3 +17,11 @@ public class SendEmailVerificationEmailRequest
     public bool IsHtml { get; set; } = true;
 
 }
+
+public class ForgotPasswordEmailRequest
+{
+    public string Email { get; set; } = string.Empty;
+    public string ResetUrl { get; set; } = string.Empty;
+    public string UserName { get; set; } = string.Empty;
+
+}

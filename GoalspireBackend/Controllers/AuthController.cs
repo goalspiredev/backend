@@ -59,23 +59,14 @@ public class AuthController : ApiBaseController
     //    return Ok();
     //}
     
-    [HttpGet("user-info")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [Authorize]
-    public ActionResult UserInfo()
-    {
-        throw new NotImplementedException();
-    }
-    
-    [HttpPost("forgot-password")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [Authorize]
-    public ActionResult ForgotPassword()
-    {
-        throw new NotImplementedException();
-    }
+    //[HttpGet("user-info")]
+    //[ProducesResponseType(StatusCodes.Status200OK)]
+    //[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    //[Authorize]
+    //public ActionResult UserInfo()
+    //{
+    //    throw new NotImplementedException();
+    //}
     
     [HttpPost("confirm-email")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -89,6 +80,16 @@ public class AuthController : ApiBaseController
         }
 
         return BadRequest(result);
+    }
+
+    [HttpPost("forgot-password")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [Authorize]
+    public ActionResult ForgotPassword()
+    {
+        throw new NotImplementedException();
+        //
     }
     
     [HttpPost("reset-password")]
