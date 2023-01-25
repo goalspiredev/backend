@@ -34,7 +34,7 @@ public class GoalsService : IGoalsService
 
     public async Task<Goal?> GetGoal(Guid id)
     {
-        return await _dataContext.Goals.FirstOrDefaultAsync(x => (x.UserId == _userService.UserId || x.IsPublic) && x.Id == id);
+        return await _dataContext.Goals.FirstOrDefaultAsync(x => (x.UserId == _userService.UserId/* || x.IsPublic*/) && x.Id == id);
     }
 
     public async Task<Goal> CreateGoal(Goal goal)
@@ -61,7 +61,7 @@ public class GoalsService : IGoalsService
 
         goal.Content = goalUpdate.Content;
         goal.Priority = goalUpdate.Priority;
-        goal.IsPublic = goalUpdate.IsPublic;
+        //goal.IsPublic = goalUpdate.IsPublic;
         goal.IsCompleted = goalUpdate.IsCompleted;
         goal.Title = goalUpdate.Title;
         goal.EndsAt = goalUpdate.EndsAt;
@@ -89,6 +89,6 @@ public class GoalsService : IGoalsService
         _dataContext.Goals.Remove(goal);
         await _dataContext.SaveChangesAsync();
 
-        return Result.Success;
+        return Result.Success();
     }
 }

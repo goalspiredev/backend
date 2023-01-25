@@ -2,11 +2,8 @@
 
 namespace GoalspireBackend.Dto.Requests.Auth;
 
-public class ResetPasswordRequest
+public class ForgotPasswordRequest
 {
-
     [EmailAddress]
     public string Email { get; set; } = string.Empty;
-    public string Token { get; set; } = string.Empty;
-    public string Password { get; set; } = string.Empty;
 }

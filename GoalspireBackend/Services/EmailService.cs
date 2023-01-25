@@ -70,7 +70,8 @@ public class EmailService : IEmailService
         {
             Email = request.Email,
             Title = "Reset your password",
-            Content = File.ReadAllText(forgotPasswordHtmlEmail).Replace("%%ResetUrl%%", request.ResetUrl).Replace("%%UserName%%", request.UserName)
+            Content = File.ReadAllText(forgotPasswordHtmlEmail).Replace("%%ResetUrl%%", request.ResetUrl).Replace("%%UserName%%", request.UserName),
+            IsHtml = true
         });
     }
 }

@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
+using System.Web;
 using GoalspireBackend.Common;
 using GoalspireBackend.Dto.Requests;
 using GoalspireBackend.Dto.Requests.Auth;
@@ -20,7 +21,8 @@ public interface IAuthService
     Task<IdentityResult> Register(RegisterRequest request);
     Task<Result> ConfirmEmail(ConfirmEmailRequest request);
     Task Logout();
-    Task<Result> ResetPassword(ForgotPasswordRequest request);
+    Task<Result> ForgotPassword(ForgotPasswordRequest request);
+    Task<Result> ResetPassword(ResetPasswordRequest request);
 }
 
 public class AuthService : IAuthService
@@ -114,8 +116,8 @@ public class AuthService : IAuthService
         {
             //sending the email
             var emailConfirmCode = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            var encodedCode = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(emailConfirmCode));
-            var encodedEmail = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(user.Email));
+            var encodedCode = HttpUtility.UrlEncode(emailConfirmCode);
+            var encodedEmail = HttpUtility.UrlEncode(user.Email);
 
             var confirmUrl = HtmlEncoder.Default.Encode($"{_configuration["App:BaseUrl"]}/auth/confirm-email?code={encodedCode}&email={encodedEmail}");
 
@@ -149,8 +151,8 @@ public class AuthService : IAuthService
         return token;
     }
 
-    public async Task<Result> ResetPassword(ForgotPasswordRequest request)
-    { 
+    public async Task<Result> ForgotPassword(ForgotPasswordRequest request)
+    {
         var user = await _userManager.FindByEmailAsync(request.Email);
         if (user is null)
         {
@@ -159,7 +161,12 @@ public class AuthService : IAuthService
 
         var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
-        var resetUrl = ""; //TODO: craft the url
+
+        var encodedToken = HttpUtility.UrlEncode(token);
+        var encodedEmail = HttpUtility.UrlEncode(request.Email);
+
+
+        var resetUrl = HtmlEncoder.Default.Encode($"{_configuration["App:BaseUrl"]}/auth/reset-password?token={encodedToken}&email={encodedEmail}");
 
         await _emailService.SendForgotPasswordEmail(new ForgotPasswordEmailRequest
         {
@@ -169,5 +176,22 @@ public class AuthService : IAuthService
         });
 
         return Result.Success();
+    }
+
+    public async Task<Result> ResetPassword(ResetPasswordRequest request)
+    {
+        var user = await _userManager.FindByEmailAsync(request.Email);
+        if (user is null)
+        {
+            return Result.Failure("User not found");
+        }
+
+        IdentityResult passwordChangeResult = await _userManager.ResetPasswordAsync(user, request.Token, request.Password);
+
+        return new Result()
+        {
+            Succeeded = passwordChangeResult.Succeeded,
+            Error = passwordChangeResult.Succeeded ? null : string.Join(", ", passwordChangeResult.Errors)
+        };
     }
 }

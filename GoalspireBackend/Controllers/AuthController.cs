@@ -48,7 +48,7 @@ public class AuthController : ApiBaseController
 
         return Ok();
     }
-    
+
 
     //[HttpPost("logout")]
     //[ProducesResponseType(StatusCodes.Status200OK)]
@@ -58,7 +58,7 @@ public class AuthController : ApiBaseController
     //    await _authService.Logout();
     //    return Ok();
     //}
-    
+
     //[HttpGet("user-info")]
     //[ProducesResponseType(StatusCodes.Status200OK)]
     //[ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -67,7 +67,7 @@ public class AuthController : ApiBaseController
     //{
     //    throw new NotImplementedException();
     //}
-    
+
     [HttpPost("confirm-email")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -84,22 +84,27 @@ public class AuthController : ApiBaseController
 
     [HttpPost("forgot-password")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [Authorize]
-    public ActionResult ForgotPassword()
+    public async Task<ActionResult> ForgotPassword(ForgotPasswordRequest request)
     {
-        throw new NotImplementedException();
-        //
+        var result = await _authService.ForgotPassword(request);
+
+        return Ok(); //prolly OK regardless of the acutal result, so user can't find out if the account exists.
     }
-    
+
     [HttpPost("reset-password")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [Authorize]
-    public ActionResult ResetPassword()
+    public async Task<ActionResult<Result>> ResetPassword(ResetPasswordRequest request)
     {
-        throw new NotImplementedException();
+        var result = await _authService.ResetPassword(request);
+
+        if (result.Succeeded)
+        {
+            return Ok(result);
+        }
+
+        return BadRequest(result);
+
     }
 }
 

@@ -18,8 +18,14 @@ public class Goal : AuditableEntity
     public string Content { get; set; } = string.Empty;
     
     public int? Priority { get; set; }
+    /*
+     * urgent - 0 - default
+     * important - 1
+     * medium - 2
+     * small - 3
+     */
     public DateTime EndsAt { get; set; }
     
     public bool IsCompleted { get; set; }
-    public bool IsPublic { get; set; }
+    //public bool IsPublic { get; set; }
 }
