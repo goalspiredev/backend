@@ -1060,8 +1060,9 @@
       "LoginRequest": {
         "type": "object",
         "properties": {
-          "login": {
+          "email": {
             "type": "string",
+            "format": "email",
             "nullable": true
           },
           "password": {
