@@ -65,7 +65,7 @@ public class AuthService : IAuthService
     public async Task<LoginResponse> Login(LoginRequest request)
     {
         //get the user from db
-        var user = await _userManager.FindByNameAsync(request.Login);
+        var user = await _userManager.FindByEmailAsync(request.Email);
         if (user == null)
         {
             return new LoginResponse
@@ -103,6 +103,7 @@ public class AuthService : IAuthService
         };
     }
 
+
     public async Task<IdentityResult> Register(RegisterRequest request)
     {
         var user = new User
@@ -134,7 +135,6 @@ public class AuthService : IAuthService
     }
 
 
-
     private JwtSecurityToken GetToken(IEnumerable<Claim> authClaims, DateTime expiration)
     {
         //create a signing key from the secret
@@ -151,6 +151,7 @@ public class AuthService : IAuthService
         return token;
     }
 
+
     public async Task<Result> ForgotPassword(ForgotPasswordRequest request)
     {
         var user = await _userManager.FindByEmailAsync(request.Email);
@@ -165,7 +166,6 @@ public class AuthService : IAuthService
         var encodedToken = HttpUtility.UrlEncode(token);
         var encodedEmail = HttpUtility.UrlEncode(request.Email);
 
-
         var resetUrl = HtmlEncoder.Default.Encode($"{_configuration["App:BaseUrl"]}/auth/reset-password?token={encodedToken}&email={encodedEmail}");
 
         await _emailService.SendForgotPasswordEmail(new ForgotPasswordEmailRequest
@@ -178,6 +178,7 @@ public class AuthService : IAuthService
         return Result.Success();
     }
 
+
     public async Task<Result> ResetPassword(ResetPasswordRequest request)
     {
         var user = await _userManager.FindByEmailAsync(request.Email);
@@ -188,6 +189,7 @@ public class AuthService : IAuthService
 
         IdentityResult passwordChangeResult = await _userManager.ResetPasswordAsync(user, request.Token, request.Password);
 
+        //cause you can't create a new failed IdentityResult to use above. So I've gotta parse it into my own
         return new Result()
         {
             Succeeded = passwordChangeResult.Succeeded,

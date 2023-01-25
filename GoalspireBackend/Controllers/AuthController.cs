@@ -6,6 +6,7 @@ using GoalspireBackend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace GoalspireBackend.Controllers;
 
@@ -88,7 +89,7 @@ public class AuthController : ApiBaseController
     {
         var result = await _authService.ForgotPassword(request);
 
-        return Ok(); //prolly OK regardless of the acutal result, so user can't find out if the account exists.
+        return Ok(); //OK regardless of the acutal result, so user can't find out if the account exists.
     }
 
     [HttpPost("reset-password")]
@@ -104,7 +105,6 @@ public class AuthController : ApiBaseController
         }
 
         return BadRequest(result);
-
     }
 }
 

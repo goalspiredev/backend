@@ -11,7 +11,6 @@ public interface IEmailService
 {
     Task<Result> SendEmail(SendEmailRequest request);
     Task<Result> SendEmailConfirmationEmail(SendEmailVerificationEmailRequest request);
-
     Task<Result> SendForgotPasswordEmail(ForgotPasswordEmailRequest request);
 }
 
@@ -38,8 +37,6 @@ public class EmailService : IEmailService
 
         if (!email.Successful)
         {
-            //throw new Exception(string.Join("; ", email.ErrorMessages));
-
             return Result.Failure(string.Join(", ", email.ErrorMessages));
         }
 
