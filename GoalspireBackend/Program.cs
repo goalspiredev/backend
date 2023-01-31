@@ -185,9 +185,14 @@ namespace GoalspireBackend
                 c.IncludeXmlComments(filePath);
             });
 
+
+            // Registering all the services
+
             builder.Services.AddTransient<ICurrentUserService, CurrentUserService>();
             builder.Services.AddTransient<IEmailService, EmailService>();
             builder.Services.AddTransient<IAuthService, AuthService>();
+
+            builder.Services.AddTransient<INotificationService, NotificationService>();
 
             builder.Services.AddTransient<IGoalsService, GoalsService>();
 

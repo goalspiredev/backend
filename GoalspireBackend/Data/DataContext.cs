@@ -25,4 +25,5 @@ public class DataContext : IdentityDbContext<User>
 
     public DbSet<Goal> Goals { get; set; } = null!;
     public DbSet<Settings> Settings { get; set; } = null!;
+    public DbSet<NotificationSubscription> NotificationSubscriptions { get; set; } = null!;
 }
