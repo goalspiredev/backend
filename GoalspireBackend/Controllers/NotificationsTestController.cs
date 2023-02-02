@@ -16,7 +16,6 @@ public class NotificationsTestController : ApiBaseController
 
 
     [HttpPost("register")]
-    //TODO: return codes
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> Register([FromBody] NotificationSubscriptionRegisterRequest request)
@@ -27,11 +26,12 @@ public class NotificationsTestController : ApiBaseController
         {
             return Ok();
         }
-        return BadRequest(result.Error); //I think the only thing that can go wrong is invalid request - wront keys or whatnot
+        return BadRequest(result.Error); // I think the only thing that can go wrong is invalid request - wront keys or whatnot
     }
 
-    [HttpGet("notify")]
-    //TODO: return codes
+    [HttpPost("notify")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> Notify(SendNotificationRequest request)
     {
         var result = await _notificationService.Notify(request);
