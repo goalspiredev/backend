@@ -31,7 +31,7 @@ public class NotificationService : INotificationService
         NotificationSubscription? notifSub = await _dataContext.NotificationSubscriptions.FirstOrDefaultAsync(x => x.Id == request.Id && x.UserId == request.UserId);
         if (notifSub == null)
         {
-            return Result.Failure("User or client not found");
+            return Result.Failure("Notification subcription not found.");
         }
 
 
@@ -59,17 +59,6 @@ public class NotificationService : INotificationService
 
     public async Task<Result> Register(NotificationSubscriptionRegisterRequest request)
     {
-
-        if (request.Id == Guid.Empty)
-        {
-            return Result.Failure("Missing client ID");
-        }
-        if (request.UserId == Guid.Empty)
-        {
-            return Result.Failure("User ID is empty.");
-        }
-
-
         var subscription = new PushSubscription(request.Endpoint, request.p256dh, request.Auth);
 
         NotificationSubscription? notifSub = await _dataContext.NotificationSubscriptions.FirstOrDefaultAsync(x => x.Id == request.Id && x.UserId == request.UserId);
