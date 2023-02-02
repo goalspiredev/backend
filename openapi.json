@@ -935,7 +935,7 @@
       }
     },
     "/v1/NotificationsTest/notify": {
-      "get": {
+      "post": {
         "tags": [
           "NotificationsTest"
         ],
@@ -961,6 +961,26 @@
         "responses": {
           "200": {
             "description": "Success"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
           }
         }
       }
