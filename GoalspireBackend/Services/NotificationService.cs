@@ -27,15 +27,6 @@ public class NotificationService : INotificationService
 
     public async Task<Result> Notify(SendNotificationRequest request)
     {
-        if (request.Id == Guid.Empty)
-        {
-            return Result.Failure("Missing client ID");
-        }
-        if (request.UserId == Guid.Empty)
-        {
-            return Result.Failure("User ID is empty.");
-        }
-
         //get the subscription details from db
         NotificationSubscription? notifSub = await _dataContext.NotificationSubscriptions.FirstOrDefaultAsync(x => x.Id == request.Id && x.UserId == request.UserId);
         if (notifSub == null)
