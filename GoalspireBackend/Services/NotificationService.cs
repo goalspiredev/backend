@@ -3,6 +3,7 @@ using GoalspireBackend.Data;
 using GoalspireBackend.Dto.Requests.Notifications;
 using GoalspireBackend.Models;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using WebPush;
 
 namespace GoalspireBackend.Services;
@@ -44,7 +45,7 @@ public class NotificationService : INotificationService
 
         try
         {
-            await webPushClient.SendNotificationAsync(subscription, request.Message, vapidDetails);
+            await webPushClient.SendNotificationAsync(subscription, JsonConvert.SerializeObject(request), vapidDetails);
             
             return Result.Success();
         }
