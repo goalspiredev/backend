@@ -1216,15 +1216,6 @@
         },
         "additionalProperties": false
       },
-      "NotificationType": {
-        "enum": [
-          0,
-          1,
-          2
-        ],
-        "type": "integer",
-        "format": "int32"
-      },
       "ProblemDetails": {
         "type": "object",
         "properties": {
@@ -1306,20 +1297,21 @@
       "SendNotificationRequest": {
         "type": "object",
         "properties": {
-          "userId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
           },
-          "message": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
             "type": "string",
             "nullable": true
           },
-          "notificationType": {
-            "$ref": "#/components/schemas/NotificationType"
+          "message": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
