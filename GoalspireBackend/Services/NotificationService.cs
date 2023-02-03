@@ -1,10 +1,12 @@
-﻿using GoalspireBackend.Common;
+﻿using System.Text.Json;
+using GoalspireBackend.Common;
 using GoalspireBackend.Data;
 using GoalspireBackend.Dto.Requests.Notifications;
 using GoalspireBackend.Models;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using WebPush;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace GoalspireBackend.Services;
 
@@ -42,10 +44,15 @@ public class NotificationService : INotificationService
         var privateKey = _configuration["VAPID:PrivateKey"];
         var vapidDetails = new VapidDetails(subject, publicKey, privateKey);
         var webPushClient = new WebPushClient();
+        
+        var options = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
 
         try
         {
-            await webPushClient.SendNotificationAsync(subscription, JsonConvert.SerializeObject(request), vapidDetails);
+            await webPushClient.SendNotificationAsync(subscription, JsonSerializer.Serialize(request, options), vapidDetails);
             
             return Result.Success();
         }
