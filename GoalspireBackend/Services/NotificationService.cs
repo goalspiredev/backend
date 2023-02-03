@@ -27,15 +27,14 @@ public class NotificationService : INotificationService
 
     public async Task<Result> Notify(SendNotificationRequest request)
     {
-        //get the subscription details from db
-        NotificationSubscription? notifSub = await _dataContext.NotificationSubscriptions.FirstOrDefaultAsync(x => x.Id == request.Id && x.UserId == request.UserId);
+        // Get the subscription details from DB
+        var notifSub = await _dataContext.NotificationSubscriptions.FirstOrDefaultAsync(x => x.Id == request.Id && x.UserId == request.UserId);
         if (notifSub == null)
         {
-            return Result.Failure("Notification subcription not found.");
+            return Result.Failure("Notification subscription not found.");
         }
 
-
-        PushSubscription subscription = new PushSubscription(notifSub.Endpoint, notifSub.p256dh, notifSub.Auth);
+        var subscription = new PushSubscription(notifSub.Endpoint, notifSub.p256dh, notifSub.Auth);
 
         var subject = _configuration["VAPID:Subject"];
         var publicKey = _configuration["VAPID:PublicKey"];
@@ -45,26 +44,23 @@ public class NotificationService : INotificationService
 
         try
         {
-            webPushClient.SendNotification(subscription, request.Message, vapidDetails);
+            await webPushClient.SendNotificationAsync(subscription, request.Message, vapidDetails);
+            
+            return Result.Success();
         }
         catch (Exception ex)
         {
-            // tbf not sure what could go wrong, but the sample code has it this way too
             Console.WriteLine(ex);
+            return Result.Failure(ex.Message);
         }
-
-
-        throw new NotImplementedException();
     }
 
     public async Task<Result> Register(NotificationSubscriptionRegisterRequest request)
     {
-        var subscription = new PushSubscription(request.Endpoint, request.p256dh, request.Auth);
-
-        NotificationSubscription? notifSub = await _dataContext.NotificationSubscriptions.FirstOrDefaultAsync(x => x.Id == request.Id && x.UserId == request.UserId);
+        var notifSub = await _dataContext.NotificationSubscriptions.FirstOrDefaultAsync(x => x.Id == request.Id && x.UserId == request.UserId);
         if (notifSub != null)
         {
-            //remove the old subscription for this user && device
+            // Remove the old subscription for this user && device
             _dataContext.NotificationSubscriptions.Remove(notifSub);
         }
 
