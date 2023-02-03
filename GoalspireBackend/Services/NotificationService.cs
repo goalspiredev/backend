@@ -78,6 +78,8 @@ public class NotificationService : INotificationService
             p256dh = request.p256dh
         });
 
+        await _dataContext.SaveChangesAsync();
+
         return Result.Success();
     }
 }
