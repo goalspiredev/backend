@@ -1147,6 +1147,13 @@
           },
           "isCompleted": {
             "type": "boolean"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -1216,6 +1223,15 @@
         },
         "additionalProperties": false
       },
+      "NotificationType": {
+        "enum": [
+          0,
+          1,
+          2
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
       "ProblemDetails": {
         "type": "object",
         "properties": {
@@ -1256,6 +1272,10 @@
             "nullable": true
           },
           "password": {
+            "type": "string",
+            "nullable": true
+          },
+          "ianaTimezoneId": {
             "type": "string",
             "nullable": true
           }
@@ -1312,6 +1332,9 @@
           "message": {
             "type": "string",
             "nullable": true
+          },
+          "notificationType": {
+            "$ref": "#/components/schemas/NotificationType"
           }
         },
         "additionalProperties": false
