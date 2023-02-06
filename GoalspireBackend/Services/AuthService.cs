@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Web;
 using GoalspireBackend.Common;
+using GoalspireBackend.Data;
 using GoalspireBackend.Dto.Requests;
 using GoalspireBackend.Dto.Requests.Auth;
 using GoalspireBackend.Dto.Requests.Email;
@@ -11,6 +12,7 @@ using GoalspireBackend.Dto.Response.Auth;
 using GoalspireBackend.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 namespace GoalspireBackend.Services;
@@ -23,6 +25,7 @@ public interface IAuthService
     Task Logout();
     Task<Result> ForgotPassword(ForgotPasswordRequest request);
     Task<Result> ResetPassword(ResetPasswordRequest request);
+    Task<List<User>> GetAllUsers();
 }
 
 public class AuthService : IAuthService
@@ -31,13 +34,15 @@ public class AuthService : IAuthService
     private readonly IConfiguration _configuration;
     private readonly IEmailService _emailService;
     private readonly SignInManager<User> _signInManager;
+    private readonly DataContext _dataContext;
 
-    public AuthService(UserManager<User> userManager, IConfiguration configuration, IEmailService emailService, SignInManager<User> signInManager)
+    public AuthService(UserManager<User> userManager, IConfiguration configuration, IEmailService emailService, SignInManager<User> signInManager, DataContext dataContext)
     {
         _userManager = userManager;
         _configuration = configuration;
         _emailService = emailService;
         _signInManager = signInManager;
+        _dataContext = dataContext;
     }
 
     public async Task<Result> ConfirmEmail(ConfirmEmailRequest request)
@@ -113,8 +118,19 @@ public class AuthService : IAuthService
         };
 
         var result = await _userManager.CreateAsync(user, request.Password);
+
+
         if (result.Succeeded)
         {
+            // create settings with default values for the user + add his timezone
+            await _dataContext.Settings.AddAsync(new Settings()
+            {
+                UserId = Guid.Parse(user.Id),
+                IanaTimeZone = request.IanaTimezoneId
+            });
+            await _dataContext.SaveChangesAsync();
+
+
             //sending the email
             var emailConfirmCode = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             var encodedCode = HttpUtility.UrlEncode(emailConfirmCode);
@@ -195,5 +211,10 @@ public class AuthService : IAuthService
             Succeeded = passwordChangeResult.Succeeded,
             Error = passwordChangeResult.Succeeded ? null : string.Join(", ", passwordChangeResult.Errors)
         };
+    }
+
+    public async Task<List<User>> GetAllUsers()
+    {
+        return await _userManager.Users.ToListAsync();
     }
 }

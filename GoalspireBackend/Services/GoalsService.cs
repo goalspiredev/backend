@@ -34,7 +34,7 @@ public class GoalsService : IGoalsService
 
     public async Task<Goal?> GetGoal(Guid id)
     {
-        return await _dataContext.Goals.FirstOrDefaultAsync(x => (x.UserId == _userService.UserId/* || x.IsPublic*/) && x.Id == id);
+        return await _dataContext.Goals.FirstOrDefaultAsync(x => (x.UserId == _userService.UserId) && x.Id == id);
     }
 
     public async Task<Goal> CreateGoal(Goal goal)
@@ -56,18 +56,19 @@ public class GoalsService : IGoalsService
         {
             throw new BadHttpRequestException("Goal does not exist!");
         }
-        
+
         if (goal.UserId != _userService.UserId) throw new BadHttpRequestException("You can't update this goal!", 403);
 
         goal.Content = goalUpdate.Content;
         goal.Priority = goalUpdate.Priority;
-        //goal.IsPublic = goalUpdate.IsPublic;
         goal.IsCompleted = goalUpdate.IsCompleted;
         goal.Title = goalUpdate.Title;
         goal.EndsAt = goalUpdate.EndsAt;
         goal.Type = goalUpdate.Type;
         goal.Priority = goalUpdate.Priority;
-        
+        goal.Tags = goalUpdate.Tags;
+
+
         goal.UpdatedAt = DateTime.UtcNow;
 
         _dataContext.Goals.Update(goal);

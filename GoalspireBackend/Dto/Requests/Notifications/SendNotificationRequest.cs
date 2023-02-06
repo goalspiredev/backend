@@ -7,4 +7,13 @@ public class SendNotificationRequest
     
     public string Title { get; set; } = string.Empty;
     public string Message { get; set; } = string.Empty;
+
+    public NotificationType NotificationType { get; set; }
+}
+
+public enum NotificationType
+{
+    Misc = 0,
+    Reminder = 1,
+    Goal = 2
 }

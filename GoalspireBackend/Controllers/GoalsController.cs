@@ -33,7 +33,12 @@ public class GoalsController : ApiBaseController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<Goal?>> GetGoal([FromRoute] Guid id)
     {
-        return await _goalService.GetGoal(id);
+        var goal = await _goalService.GetGoal(id);
+        if (goal == null)
+        {
+            return NotFound();
+        }
+        return goal;        
     }
     
     [HttpPost]

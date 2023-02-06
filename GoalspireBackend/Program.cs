@@ -1,6 +1,4 @@
 
-using System.Net;
-using System.Net.Mail;
 using System.Text;
 using FluentEmail.Core;
 using FluentEmail.MailKitSmtp;
@@ -116,7 +114,7 @@ namespace GoalspireBackend
             builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, SwaggerConfigureOptions>();
             builder.Services.AddSwaggerGen(c =>
             {
-#if DEBUG
+#if DEBUG // reordering the options for servers on swagger, so when debugging the local API is default
                 c.AddServer(new OpenApiServer
                 {
                     Description = "Local API",
@@ -196,6 +194,8 @@ namespace GoalspireBackend
             builder.Services.AddTransient<INotificationService, NotificationService>();
 
             builder.Services.AddTransient<IGoalsService, GoalsService>();
+
+            builder.Services.AddHostedService<RemindingService>();
 
             var app = builder.Build();
             
