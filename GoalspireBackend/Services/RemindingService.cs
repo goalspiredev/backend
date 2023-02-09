@@ -27,15 +27,16 @@ public class RemindingService : BackgroundService
     {
         if (task.Type != GoalType.Task) return false;
         
-        var date1 = RoundDateDown(task.EndsAt, _remindersCheckPeriod);
-        var date2 = RoundDateDown(DateTime.UtcNow, _remindersCheckPeriod);
+        var endDateTime = RoundDateDown(task.EndsAt, _remindersCheckPeriod);
+        var currentDateTime = RoundDateDown(DateTime.UtcNow, _remindersCheckPeriod);
         
-        return date1.CompareTo(date2) == 0;
+        return endDateTime.CompareTo(currentDateTime) == 0;
     }
 
     bool ShouldRemindGoal(Goal goal)
     {
         if (goal.Type != GoalType.Goal) return false;
+        //this doesn't really work yet ↓ cause it checks only for tasks that are due the same few secs
         return RoundDateDown(goal.EndsAt, _remindersCheckPeriod).CompareTo(RoundDateDown(DateTime.UtcNow, _remindersCheckPeriod)) == 0;
     }
 
@@ -46,11 +47,13 @@ public class RemindingService : BackgroundService
         {
             try
             {
+                // init all needed scoped services
                 using IServiceScope scope = _serviceProvider.CreateScope();
                 var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
                 var authService = scope.ServiceProvider.GetRequiredService<IAuthService>();
                 var dataContext = scope.ServiceProvider.GetRequiredService<DataContext>();
                 
+                // pre-fetch the goals, settings and subscriptions now to avoid unneccessary db calls later
                 var tasksAndGoals = await dataContext.Goals.Where(x => !x.IsCompleted).ToListAsync(stoppingToken);
                 var tasksPending = tasksAndGoals.Where(ShouldRemindTask).ToList();
                 var goalsPending = tasksAndGoals.Where(ShouldRemindGoal).ToList();
@@ -107,7 +110,8 @@ public class RemindingService : BackgroundService
                     Title = task.Title,
                     Message = task.Content,
                     UserId = task.UserId,
-                    Id = sub.Id
+                    Id = sub.Id,
+                    GoalId = task.Id
                 });
             }
         }
@@ -126,8 +130,7 @@ public class RemindingService : BackgroundService
             DateOnly date = DateOnly.FromDateTime(goal.EndsAt);
             DateTime notifDateTimeUnspec = date.ToDateTime(settings.DailyNotificationTime, DateTimeKind.Unspecified);
             DateTime utcNotifTime = TimeZoneInfo.ConvertTimeToUtc(notifDateTimeUnspec, settings.TimeZone);
-            // this up here ↑ converts the user's preferred daily notification time for each goal to UTC, so we can check it
-            // thid down here ↓ checks if the calculated notification time is due within this run of the renimding timer
+            // this ↑ converts the user's preferred daily notification time for each goal to UTC, so we can check it
             
             // TODO: add "smart" reminding
 
@@ -139,7 +142,8 @@ public class RemindingService : BackgroundService
                     Id = sub.Id,
                     Message = goal.Content,
                     Title = goal.Title, // TODO: maybe set the text(s) to not only the text from the goal body, but something like "Hey, you set yoruself to complete this ... yada yada"
-                    UserId = goal.UserId
+                    UserId = goal.UserId,
+                    GoalId = goal.Id,
                 });
             }
         }

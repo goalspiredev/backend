@@ -9,6 +9,8 @@ public class SendNotificationRequest
     public string Message { get; set; } = string.Empty;
 
     public NotificationType NotificationType { get; set; }
+
+    public Guid GoalId { get; set; }
 }
 
 public enum NotificationType
