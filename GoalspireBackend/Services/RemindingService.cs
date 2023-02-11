@@ -9,7 +9,7 @@ namespace GoalspireBackend.Services;
 public class RemindingService : BackgroundService
 {
     private readonly TimeSpan _remindersCheckPeriod;
-    
+
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<RemindingService> _logger;
     private readonly IConfiguration _configuration;
@@ -26,10 +26,10 @@ public class RemindingService : BackgroundService
     bool ShouldRemindTask(Goal task)
     {
         if (task.Type != GoalType.Task) return false;
-        
+
         var endDateTime = RoundDateDown(task.EndsAt, _remindersCheckPeriod);
         var currentDateTime = RoundDateDown(DateTime.UtcNow, _remindersCheckPeriod);
-        
+
         return endDateTime.CompareTo(currentDateTime) == 0;
     }
 
@@ -52,7 +52,7 @@ public class RemindingService : BackgroundService
                 var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
                 var authService = scope.ServiceProvider.GetRequiredService<IAuthService>();
                 var dataContext = scope.ServiceProvider.GetRequiredService<DataContext>();
-                
+
                 // pre-fetch the goals, settings and subscriptions now to avoid unneccessary db calls later
                 var tasksAndGoals = await dataContext.Goals.Where(x => !x.IsCompleted).ToListAsync(stoppingToken);
                 var tasksPending = tasksAndGoals.Where(ShouldRemindTask).ToList();
@@ -64,11 +64,11 @@ public class RemindingService : BackgroundService
                 var subscriptions = await dataContext.NotificationSubscriptions
                     .Where(x => tasksUserIds.Contains(x.UserId) || goalsUserIds.Contains(x.UserId))
                     .ToListAsync(stoppingToken);
-                
+
                 var userSettings = await dataContext.Settings
                     .Where(x => tasksUserIds.Contains(x.UserId) || goalsUserIds.Contains(x.UserId))
                     .ToListAsync(stoppingToken);
-                
+
                 try
                 {
                     RemindAboutTasks(tasksPending, subscriptions, notificationService, dataContext); // doesn't need to be awaited, because we really don't want to wait for the notification to be pushed before going forward with the other tasks
@@ -77,7 +77,7 @@ public class RemindingService : BackgroundService
                 {
                     _logger.LogError("Failed to remind about tasks: {Message}", ex.Message);
                 }
-                
+
                 try
                 {
                     RemindAboutGoals(goalsPending, subscriptions, userSettings, notificationService, dataContext); // doesn't need to be awaited, because we really don't want to wait for the notification to be pushed before going forward with the other tasks
@@ -86,8 +86,8 @@ public class RemindingService : BackgroundService
                 {
                     _logger.LogError("Failed to remind about goals: {Message}", ex.Message);
                 }
-                
-                
+
+
                 //      ?? get a random goal and notify the user ?? //TODO:
             }
             catch (Exception ex)
@@ -112,7 +112,7 @@ public class RemindingService : BackgroundService
                     UserId = task.UserId,
                     Id = sub.Id,
                     GoalId = task.Id
-                });
+                }, test: false);
             }
         }
     }
@@ -125,16 +125,16 @@ public class RemindingService : BackgroundService
 
             Settings? settings = userSettings.FirstOrDefault(x => x.UserId == goal.UserId);
             if (settings == null) return;
-            
+
             //TODO: test out this code for timezones
             DateOnly date = DateOnly.FromDateTime(goal.EndsAt);
             DateTime notifDateTimeUnspec = date.ToDateTime(settings.DailyNotificationTime, DateTimeKind.Unspecified);
             DateTime utcNotifTime = TimeZoneInfo.ConvertTimeToUtc(notifDateTimeUnspec, settings.TimeZone);
             // this ↑ converts the user's preferred daily notification time for each goal to UTC, so we can check it
-            
+
             // TODO: add "smart" reminding
 
-            foreach(var sub in subscriptions)
+            foreach (var sub in subscriptions)
             {
                 await notificationService.Notify(new Dto.Requests.Notifications.SendNotificationRequest
                 {
@@ -144,7 +144,7 @@ public class RemindingService : BackgroundService
                     Title = goal.Title, // TODO: maybe set the text(s) to not only the text from the goal body, but something like "Hey, you set yoruself to complete this ... yada yada"
                     UserId = goal.UserId,
                     GoalId = goal.Id,
-                });
+                }, test: false);
             }
         }
     }
