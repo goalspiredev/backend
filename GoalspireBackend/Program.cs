@@ -30,7 +30,7 @@ namespace GoalspireBackend
             {
                 options.AddPolicy(name: "GoalspireCorsPolicy", policy =>
                 {
-                    policy.WithOrigins("https://goalspire.net", "https://test.goalspire.net", "https://dev.goalspire.net", "https://docs.goalspire.net", "http://localhost:5173", "http://localhost:4173").AllowAnyHeader().AllowAnyMethod();
+                    policy.WithOrigins("https://goalspire.net", "https://test.goalspire.net", "https://dev.goalspire.net", "https://dev.frontend-429.pages.dev", "https://docs.goalspire.net", "http://localhost:5173", "http://localhost:4173").AllowAnyHeader().AllowAnyMethod();
                 });
             });
 
