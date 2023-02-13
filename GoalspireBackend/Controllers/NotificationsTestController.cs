@@ -34,7 +34,7 @@ public class NotificationsTestController : ApiBaseController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> Notify(SendNotificationRequest request)
     {
-        var result = await _notificationService.Notify(request, test: true);
+        var result = await _notificationService.Notify(request);
 
         if (result.Succeeded)
         {
