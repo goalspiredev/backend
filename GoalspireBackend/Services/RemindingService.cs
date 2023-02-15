@@ -50,9 +50,8 @@ public class RemindingService : BackgroundService
                 _logger.LogDebug("Executing all pending reminders..");
                 
                 // init all needed scoped services
-                using IServiceScope scope = _serviceProvider.CreateScope();
+                await using var scope = _serviceProvider.CreateAsyncScope();
                 var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
-                var authService = scope.ServiceProvider.GetRequiredService<IAuthService>();
                 var dataContext = scope.ServiceProvider.GetRequiredService<DataContext>();
                 
                 // pre-fetch the goals, settings and subscriptions now to avoid unneccessary db calls later
