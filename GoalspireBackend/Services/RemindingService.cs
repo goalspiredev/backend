@@ -42,17 +42,16 @@ public class RemindingService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        await using var scope = _serviceProvider.CreateAsyncScope();
+        var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
+        var dataContext = scope.ServiceProvider.GetRequiredService<DataContext>();
+        
         using PeriodicTimer periodicTimer = new PeriodicTimer(_remindersCheckPeriod);
         while (!stoppingToken.IsCancellationRequested && await periodicTimer.WaitForNextTickAsync(stoppingToken)) // the actual code to be run each check time
         {
             try
             {
                 _logger.LogDebug("Executing all pending reminders..");
-                
-                // init all needed scoped services
-                await using var scope = _serviceProvider.CreateAsyncScope();
-                var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
-                var dataContext = scope.ServiceProvider.GetRequiredService<DataContext>();
                 
                 // pre-fetch the goals, settings and subscriptions now to avoid unneccessary db calls later
                 var tasksAndGoals = await dataContext.Goals.Where(x => !x.IsCompleted).ToListAsync(stoppingToken);
