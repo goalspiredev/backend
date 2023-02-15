@@ -9,7 +9,7 @@ namespace GoalspireBackend.Services;
 public class RemindingService : BackgroundService
 {
     private readonly TimeSpan _remindersCheckPeriod;
-    
+
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<RemindingService> _logger;
     private readonly IConfiguration _configuration;
@@ -36,8 +36,51 @@ public class RemindingService : BackgroundService
     bool ShouldRemindGoal(Goal goal)
     {
         if (goal.Type != GoalType.Goal) return false;
-        //this doesn't really work yet ↓ cause it checks only for tasks that are due the same few secs
-        return RoundDateDown(goal.EndsAt, _remindersCheckPeriod).CompareTo(RoundDateDown(DateTime.UtcNow, _remindersCheckPeriod)) == 0;
+
+
+        TimeSpan goalLength = goal.EndsAt - goal.CreatedAt;
+        TimeSpan timeSinceCreate = DateTime.UtcNow - goal.CreatedAt;
+
+        int defaultRemindIntervalDays = goalLength.TotalDays switch
+        {
+            (<= 7) => 1,
+            (<= 31) => 3,
+            (<= 90) => 7,
+            _ => 14 //everything longer remind every two weeks
+        };
+
+
+        /*
+         * urgent - 0       / 2
+         * important - 1    / 1.5
+         * medium - 2       / 1
+         * small - 3        * 2
+         */
+
+        int remindIntervalDays = goal.Priority switch
+        {
+            0 => (int)Math.Ceiling((decimal)defaultRemindIntervalDays / 2),
+            1 => (int)Math.Ceiling(defaultRemindIntervalDays / 1.5d),
+            2 => defaultRemindIntervalDays,
+            3 => defaultRemindIntervalDays * 2,
+            _ => defaultRemindIntervalDays //shouldn't happen, but who knows...
+        };
+
+
+
+
+        if (timeSinceCreate.TotalDays == goalLength.TotalDays) // the goal ends today
+        {
+            return true;
+        }
+
+
+        if (timeSinceCreate.TotalDays % remindIntervalDays == 0) // if it's time to remind abt the goal
+        {
+            return true;
+        }
+
+        return false;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -45,19 +88,19 @@ public class RemindingService : BackgroundService
         await using var scope = _serviceProvider.CreateAsyncScope();
         var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
         var dataContext = scope.ServiceProvider.GetRequiredService<DataContext>();
-        
+
         using PeriodicTimer periodicTimer = new PeriodicTimer(_remindersCheckPeriod);
         while (!stoppingToken.IsCancellationRequested && await periodicTimer.WaitForNextTickAsync(stoppingToken)) // the actual code to be run each check time
         {
             try
             {
                 _logger.LogDebug("Executing all pending reminders..");
-                
+
                 // pre-fetch the goals, settings and subscriptions now to avoid unneccessary db calls later
                 var tasksAndGoals = await dataContext.Goals.Where(x => !x.IsCompleted).ToListAsync(stoppingToken);
                 var tasksPending = tasksAndGoals.Where(ShouldRemindTask).ToList();
                 var goalsPending = tasksAndGoals.Where(ShouldRemindGoal).ToList();
-                
+
                 _logger.LogDebug($"Fetched {0} task(s) and {1} goal(s) to be reminded", tasksPending.Count, goalsPending.Count);
 
                 var tasksUserIds = tasksPending.Select(x => x.UserId);
@@ -66,11 +109,11 @@ public class RemindingService : BackgroundService
                 var subscriptions = await dataContext.NotificationSubscriptions
                     .Where(x => tasksUserIds.Contains(x.UserId) || goalsUserIds.Contains(x.UserId))
                     .ToListAsync(stoppingToken);
-                
+
                 var userSettings = await dataContext.Settings
                     .Where(x => tasksUserIds.Contains(x.UserId) || goalsUserIds.Contains(x.UserId))
                     .ToListAsync(stoppingToken);
-                
+
                 try
                 {
                     RemindAboutTasks(tasksPending, subscriptions, notificationService, dataContext); // doesn't need to be awaited, because we really don't want to wait for the notification to be pushed before going forward with the other tasks
@@ -79,7 +122,7 @@ public class RemindingService : BackgroundService
                 {
                     _logger.LogError("Failed to remind about tasks: {Message}", ex.Message);
                 }
-                
+
                 try
                 {
                     RemindAboutGoals(goalsPending, subscriptions, userSettings, notificationService, dataContext); // doesn't need to be awaited, because we really don't want to wait for the notification to be pushed before going forward with the other tasks
@@ -88,8 +131,8 @@ public class RemindingService : BackgroundService
                 {
                     _logger.LogError("Failed to remind about goals: {Message}", ex.Message);
                 }
-                
-                
+
+
                 //      ?? get a random goal and notify the user ?? //TODO:
             }
             catch (Exception ex)
@@ -127,16 +170,21 @@ public class RemindingService : BackgroundService
 
             Settings? settings = userSettings.FirstOrDefault(x => x.UserId == goal.UserId);
             if (settings == null) return;
-            
+
             //TODO: test out this code for timezones
             DateOnly date = DateOnly.FromDateTime(goal.EndsAt);
             DateTime notifDateTimeUnspec = date.ToDateTime(settings.DailyNotificationTime, DateTimeKind.Unspecified);
             DateTime utcNotifTime = TimeZoneInfo.ConvertTimeToUtc(notifDateTimeUnspec, settings.TimeZone);
             // this ↑ converts the user's preferred daily notification time for each goal to UTC, so we can check it
-            
-            // TODO: add "smart" reminding
 
-            foreach(var sub in subscriptions)
+
+            var prevRun = DateTime.UtcNow - _remindersCheckPeriod;
+            var currRun = DateTime.UtcNow;
+
+            if (!IsDateBetween(utcNotifTime, prevRun, currRun)) return; //if it's not the time of the day to remind the user abt his stuff
+
+
+            foreach (var sub in subscriptions)
             {
                 await notificationService.Notify(new Dto.Requests.Notifications.SendNotificationRequest
                 {
@@ -151,9 +199,9 @@ public class RemindingService : BackgroundService
         }
     }
 
-    private static bool IsDateBetween(DateTime dt, DateTime date1, DateTime date2)
+    private static bool IsDateBetween(DateTime dt, DateTime low, DateTime high)
     {
-        return dt >= date1 && dt <= date2;
+        return dt >= low && dt <= high;
     }
 
     private static DateTime RoundDateDown(DateTime dt, TimeSpan d)

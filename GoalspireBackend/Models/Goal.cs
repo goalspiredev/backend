@@ -24,6 +24,7 @@ public class Goal : AuditableEntity
      * small - 3
      */
     public int? Priority { get; set; }
+    public const int MaxPriority = 4;
 
     public DateTime EndsAt { get; set; }
     public bool IsCompleted { get; set; }
