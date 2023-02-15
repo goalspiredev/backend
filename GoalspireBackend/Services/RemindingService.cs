@@ -26,11 +26,11 @@ public class RemindingService : BackgroundService
     bool ShouldRemindTask(Goal task)
     {
         if (task.Type != GoalType.Task) return false;
-        
-        var endDateTime = RoundDateDown(task.EndsAt, _remindersCheckPeriod);
-        var currentDateTime = RoundDateDown(DateTime.UtcNow, _remindersCheckPeriod);
-        
-        return endDateTime.CompareTo(currentDateTime) == 0;
+
+        var prevRun = DateTime.UtcNow - _remindersCheckPeriod;
+        var currRun = DateTime.UtcNow;
+
+        return IsDateBetween(task.EndsAt, prevRun, currRun);
     }
 
     bool ShouldRemindGoal(Goal goal)
@@ -147,6 +147,11 @@ public class RemindingService : BackgroundService
                 });
             }
         }
+    }
+
+    private static bool IsDateBetween(DateTime dt, DateTime date1, DateTime date2)
+    {
+        return dt >= date1 && dt <= date2;
     }
 
     private static DateTime RoundDateDown(DateTime dt, TimeSpan d)
