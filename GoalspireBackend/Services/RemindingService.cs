@@ -47,6 +47,8 @@ public class RemindingService : BackgroundService
         {
             try
             {
+                _logger.LogDebug("Executing all pending reminders..");
+                
                 // init all needed scoped services
                 using IServiceScope scope = _serviceProvider.CreateScope();
                 var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
@@ -57,6 +59,8 @@ public class RemindingService : BackgroundService
                 var tasksAndGoals = await dataContext.Goals.Where(x => !x.IsCompleted).ToListAsync(stoppingToken);
                 var tasksPending = tasksAndGoals.Where(ShouldRemindTask).ToList();
                 var goalsPending = tasksAndGoals.Where(ShouldRemindGoal).ToList();
+                
+                _logger.LogDebug($"Fetched {0} task(s) and {1} goal(s) to be reminded", tasksPending.Count, goalsPending.Count);
 
                 var tasksUserIds = tasksPending.Select(x => x.UserId);
                 var goalsUserIds = goalsPending.Select(x => x.UserId);
