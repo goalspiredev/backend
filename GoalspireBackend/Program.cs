@@ -39,7 +39,7 @@ namespace GoalspireBackend
             //all the stuff about handling users and their logins
             builder.Services.AddIdentity<User, IdentityRole>(options =>
                 {
-                    options.SignIn.RequireConfirmedEmail = false; //TODO: turn on in prod
+                    options.SignIn.RequireConfirmedEmail = true;
 
                     options.User.RequireUniqueEmail = true;
 
