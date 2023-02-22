@@ -12,15 +12,15 @@ public class RemindingService : BackgroundService
 
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<RemindingService> _logger;
-    private readonly IConfiguration _configuration;
+
+    private const int BatchLoadSize = 100;
 
     public RemindingService(IServiceProvider serviceProvider, ILogger<RemindingService> logger, IConfiguration configuration)
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
-        _configuration = configuration;
 
-        _remindersCheckPeriod = TimeSpan.FromSeconds(_configuration.GetValue<int>("Goals:Reminding:IntervalSeconds"));
+        _remindersCheckPeriod = TimeSpan.FromSeconds(configuration.GetValue<int>("Goals:Reminding:IntervalSeconds"));
     }
 
     bool ShouldRemindTask(Goal task)
@@ -75,12 +75,62 @@ public class RemindingService : BackgroundService
         }
 
 
-        if (timeSinceCreate.TotalDays % remindIntervalDays == 0) // if it's time to remind abt the goal
-        {
-            return true;
-        }
+        return timeSinceCreate.TotalDays % remindIntervalDays == 0;
+    }
 
-        return false;
+    private async Task LoadReminderBatch(DataContext dataContext, INotificationService notificationService, CancellationToken stoppingToken, int skip = 0)
+    {
+        while (true)
+        {
+            _logger.LogDebug($"Loading batch of reminders, skip: {skip}");
+
+            // pre-fetch the goals, settings and subscriptions now to avoid unnecessary db calls later
+            var tasksAndGoals = await dataContext.Goals.Where(x => !x.IsCompleted)
+                .OrderBy(x => x.CreatedAt)
+                .Skip(skip)
+                .Take(BatchLoadSize)
+                .ToListAsync(stoppingToken);
+
+            var tasksPending = tasksAndGoals.Where(ShouldRemindTask).ToList();
+            var goalsPending = tasksAndGoals.Where(ShouldRemindGoal).ToList();
+
+            _logger.LogDebug($"Fetched {0} task(s) and {1} goal(s) to be reminded", tasksPending.Count, goalsPending.Count);
+
+            var tasksUserIds = tasksPending.Select(x => x.UserId);
+            var goalsUserIds = goalsPending.Select(x => x.UserId);
+
+            var subscriptions = await dataContext.NotificationSubscriptions.Where(x => tasksUserIds.Contains(x.UserId) || goalsUserIds.Contains(x.UserId))
+                .ToListAsync(stoppingToken);
+
+            var userSettings = await dataContext.Settings.Where(x => tasksUserIds.Contains(x.UserId) || goalsUserIds.Contains(x.UserId))
+                .ToListAsync(stoppingToken);
+
+            try
+            {
+                RemindAboutTasks(tasksPending, subscriptions, notificationService, dataContext); // doesn't need to be awaited, because we really don't want to wait for the notification to be pushed before going forward with the other tasks
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Failed to remind about tasks: {Message}", ex.Message);
+            }
+
+            try
+            {
+                RemindAboutGoals(goalsPending, subscriptions, userSettings, notificationService, dataContext); // doesn't need to be awaited, because we really don't want to wait for the notification to be pushed before going forward with the other tasks
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Failed to remind about goals: {Message}", ex.Message);
+            }
+
+            if (tasksAndGoals.Count < BatchLoadSize)
+            {
+                skip += BatchLoadSize;
+                continue;
+            }
+
+            break;
+        }
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -95,44 +145,7 @@ public class RemindingService : BackgroundService
             try
             {
                 _logger.LogDebug("Executing all pending reminders..");
-
-                // pre-fetch the goals, settings and subscriptions now to avoid unneccessary db calls later
-                var tasksAndGoals = await dataContext.Goals.Where(x => !x.IsCompleted).ToListAsync(stoppingToken);
-                var tasksPending = tasksAndGoals.Where(ShouldRemindTask).ToList();
-                var goalsPending = tasksAndGoals.Where(ShouldRemindGoal).ToList();
-
-                _logger.LogDebug($"Fetched {0} task(s) and {1} goal(s) to be reminded", tasksPending.Count, goalsPending.Count);
-
-                var tasksUserIds = tasksPending.Select(x => x.UserId);
-                var goalsUserIds = goalsPending.Select(x => x.UserId);
-
-                var subscriptions = await dataContext.NotificationSubscriptions
-                    .Where(x => tasksUserIds.Contains(x.UserId) || goalsUserIds.Contains(x.UserId))
-                    .ToListAsync(stoppingToken);
-
-                var userSettings = await dataContext.Settings
-                    .Where(x => tasksUserIds.Contains(x.UserId) || goalsUserIds.Contains(x.UserId))
-                    .ToListAsync(stoppingToken);
-
-                try
-                {
-                    RemindAboutTasks(tasksPending, subscriptions, notificationService, dataContext); // doesn't need to be awaited, because we really don't want to wait for the notification to be pushed before going forward with the other tasks
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError("Failed to remind about tasks: {Message}", ex.Message);
-                }
-
-                try
-                {
-                    RemindAboutGoals(goalsPending, subscriptions, userSettings, notificationService, dataContext); // doesn't need to be awaited, because we really don't want to wait for the notification to be pushed before going forward with the other tasks
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError("Failed to remind about goals: {Message}", ex.Message);
-                }
-
-
+                await LoadReminderBatch(dataContext, notificationService, stoppingToken);
                 //      ?? get a random goal and notify the user ?? //TODO:
             }
             catch (Exception ex)
