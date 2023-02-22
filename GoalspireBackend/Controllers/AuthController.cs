@@ -50,7 +50,6 @@ public class AuthController : ApiBaseController
         return Ok();
     }
 
-
     //[HttpPost("logout")]
     //[ProducesResponseType(StatusCodes.Status200OK)]
     //[ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -58,15 +57,6 @@ public class AuthController : ApiBaseController
     //{
     //    await _authService.Logout();
     //    return Ok();
-    //}
-
-    //[HttpGet("user-info")]
-    //[ProducesResponseType(StatusCodes.Status200OK)]
-    //[ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    //[Authorize]
-    //public ActionResult UserInfo()
-    //{
-    //    throw new NotImplementedException();
     //}
 
     [HttpPost("confirm-email")]
