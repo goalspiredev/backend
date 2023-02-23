@@ -54,7 +54,7 @@ public class EmailService : IEmailService
             Email = request.Email,
             Title = request.Title,
             IsHtml = request.IsHtml,
-            Content = File.ReadAllText(request.IsHtml ? confirmEmailHtmlPath : confirmEmailTxtPath).Replace("%%UserName%%", request.UserName).Replace("%%confirmUrl%%", request.ConfirmURL)
+            Content = File.ReadAllText(request.IsHtml ? confirmEmailHtmlPath : confirmEmailTxtPath).Replace("%%UserName%%", request.UserName).Replace("%%ConfirmUrl%%", request.ConfirmURL)
         });
         return res;
     }

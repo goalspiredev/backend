@@ -2,46 +2,19 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <style>
-
-        body{
-            font-family: Arial;
-        }
-
-        h1 {
-            /*text-align: center;*/
-        }
-
-        p {
-            /*text-align: center;*/
-        }
-
-        .container {
-            margin: auto;
-            width: 70%;
-            background-color: #FAD3D3;
-            padding: 10px;
-            padding-left: 20px;
-        }
-
-        .small {
-            color: gray;
-            font-size: 0.75em;
-        }
-    </style>
+    <title>Welcome to Goalspire.net</title>
 </head>
-<body>
-    <div class="container">
-        <h1>Hello %%UserName%%</h1>
-        <p>
-            Thank you for registering at <a href="https://goalspire.net/">Goalspire.net</a>.
-            Click the following like to verify your account: <a href="%%confirmUrl%%">%%confirmUrl%%</a>
-            <br />
-            <span class="small">
-                If the link doens't work, you can copy and paste it to you browser.
-            </span>
+<body style="font-family: Arial; background-color: #F8F8F8; margin: 15px; padding: 0; ">
+    <div class="container" style="margin-top:auto;margin-bottom:auto;margin-right:auto;margin-left:auto;width:70%;background-color:#FFFFFF;border-radius:10px;box-shadow:0px 0px 10px 1px rgba(0, 0, 0, 0.1);padding-top:30px;padding-bottom:30px;padding-right:30px;padding-left:30px;text-align:center;">
+        <h1 style="color:#1A1A1A;font-size:2em;margin-top:0;margin-bottom:10px;margin-right:0;margin-left:0;">Hello %%UserName%%</h1>
+        <p style="color:#3A3A3A;font-size:1.1em;margin-top:0;margin-bottom:20px;margin-right:0;margin-left:0;line-height:1.5;">
+            Thank you for registering at <a href="https://goalspire.net/" style="color:#3C8DBC;text-decoration:none;">Goalspire.net</a>.
         </p>
-        <p>
+        <a class="btn" href="%%ConfirmUrl%%" style="text-decoration:none;background-color:#eb4f4f;color:white;border-style:none;border-radius:5px;padding-top:10px;padding-bottom:10px;padding-right:20px;padding-left:20px;font-size:1.1em;cursor:pointer;margin-bottom:2rem;">Verify email</a>
+        <p class="small" style="margin-bottom:20px;margin-right:0;margin-left:0;line-height:1.5;color:#6D6D6D;font-size:0.8em;margin-top:20px;">
+            If the link doesn't work, you can copy and paste it into your browser.
+        </p>
+        <p style="color:#3A3A3A;font-size:1.1em;margin-top:0;margin-bottom:20px;margin-right:0;margin-left:0;line-height:1.5;">
             If you didn't register for Goalspire.net, please ignore this email.
         </p>
     </div>
