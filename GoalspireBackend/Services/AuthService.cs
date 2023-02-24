@@ -79,15 +79,6 @@ public class AuthService : IAuthService
             };
         }
 
-        if (!user.EmailConfirmed) // mby it would be better to check this with the option turned on in Program.cs. But I ain't exactly sure how...
-        {
-            return new LoginResponse
-            {
-                Succeeded = false,
-                Note = "Email not confirmed."
-            };
-        }
-
         //sign in the user
         var result = await _signInManager.PasswordSignInAsync(user, request.Password, request.RememberMe, false);
         if (!result.Succeeded)
@@ -95,6 +86,15 @@ public class AuthService : IAuthService
             return new LoginResponse
             {
                 Succeeded = false
+            };
+        }
+
+        if (!user.EmailConfirmed)
+        {
+            return new LoginResponse
+            {
+                Succeeded = false,
+                Note = "Email not confirmed."
             };
         }
 
