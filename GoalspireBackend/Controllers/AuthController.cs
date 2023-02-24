@@ -29,7 +29,7 @@ public class AuthController : ApiBaseController
         var response = await _authService.Login(request);
         if (!response.Succeeded)
         {
-            return Forbid();
+            return StatusCode(StatusCodes.Status403Forbidden, response.Note ?? "Name or password is invalid.");
         }
 
         return Ok(response);
