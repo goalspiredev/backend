@@ -190,12 +190,15 @@ namespace GoalspireBackend
             builder.Services.AddTransient<ICurrentUserService, CurrentUserService>();
             builder.Services.AddTransient<IEmailService, EmailService>();
             builder.Services.AddTransient<IAuthService, AuthService>();
+            builder.Services.AddTransient<ISettingsService, SettingsService>();
 
             builder.Services.AddTransient<INotificationService, NotificationService>();
 
             builder.Services.AddTransient<IGoalsService, GoalsService>();
 
             builder.Services.AddHostedService<RemindingService>();
+
+
 
             var app = builder.Build();
             
