@@ -18,11 +18,13 @@ public class GoalsService : IGoalsService
 {
     private readonly ICurrentUserService _userService;
     private readonly DataContext _dataContext;
+    private readonly ISettingsService _settingsService;
 
-    public GoalsService(ICurrentUserService userService, DataContext dataContext)
+    public GoalsService(ICurrentUserService userService, DataContext dataContext, ISettingsService settingsService)
     {
         _userService = userService;
         _dataContext = dataContext;
+        _settingsService = settingsService;
     }
 
     public async Task<List<Goal>> GetAllGoals()
@@ -45,6 +47,8 @@ public class GoalsService : IGoalsService
 
         _dataContext.Goals.Add(goal);
         await _dataContext.SaveChangesAsync();
+
+        await _settingsService.CheckAndAddTags(goal.Tags);
 
         return goal;
     }
@@ -73,6 +77,8 @@ public class GoalsService : IGoalsService
 
         _dataContext.Goals.Update(goal);
         await _dataContext.SaveChangesAsync();
+
+        await _settingsService.CheckAndAddTags(goal.Tags);
 
         return goal;
     }

@@ -2,6 +2,7 @@
 using GoalspireBackend.Data;
 using GoalspireBackend.Models;
 using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Asn1;
 
 namespace GoalspireBackend.Services;
 
@@ -9,6 +10,7 @@ public interface ISettingsService
 {
     public Task<Settings> GetSettings();
     public Task<Result> ModifySettings(Settings settings);
+    public Task CheckAndAddTags(List<string> tags);
 }
 
 
@@ -30,8 +32,6 @@ public class SettingsService : ISettingsService
 
     public async Task<Result> ModifySettings(Settings settings)
     {
-        //TODO: maybe we should compare and save goal tags to the user's settings when he creates a new goal with said tags?
-
         Settings savedSettings = await GetSettings(); //TODO: this could be throwing erros,
                                                       //BUT it shouldn't happen, because user gets assigned default settings upon creation.
                                                       //But the DB needs to be flushed cause old users don't have settings
@@ -48,5 +48,15 @@ public class SettingsService : ISettingsService
         await _dataContext.SaveChangesAsync();
 
         return Result.Success();
+    }
+
+    public async Task CheckAndAddTags(List<string> tags)
+    {
+        Settings savedSettings = await GetSettings();
+        savedSettings.GoalTags.AddRange(tags.Except(savedSettings.GoalTags));
+        _dataContext.Settings.Update(savedSettings);
+        await _dataContext.SaveChangesAsync();
+
+        return;
     }
 }
