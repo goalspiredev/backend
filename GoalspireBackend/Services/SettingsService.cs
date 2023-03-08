@@ -1,6 +1,5 @@
 ﻿using GoalspireBackend.Common;
 using GoalspireBackend.Data;
-using GoalspireBackend.Dto.Requests.Settings;
 using GoalspireBackend.Models;
 using Microsoft.EntityFrameworkCore;
 

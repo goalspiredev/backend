@@ -1,5 +1,4 @@
-﻿using GoalspireBackend.Dto.Requests.Settings;
-using GoalspireBackend.Models;
+﻿using GoalspireBackend.Models;
 using GoalspireBackend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
