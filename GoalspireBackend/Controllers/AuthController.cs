@@ -96,6 +96,21 @@ public class AuthController : ApiBaseController
 
         return BadRequest(result);
     }
+
+    [HttpPost("change-password")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [Authorize]
+    public async Task<ActionResult> ChangePassword(ChangePasswordRequest request)
+    {
+        var result = await _authService.ChangePassword(request);
+        if (result.Succeeded)
+        {
+            return Ok();
+        }
+
+        return BadRequest(result.Errors);
+    }
 }
 
 //  Example of how a v2 api would be implemented

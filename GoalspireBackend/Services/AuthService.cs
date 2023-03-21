@@ -25,6 +25,7 @@ public interface IAuthService
     Task Logout();
     Task<Result> ForgotPassword(ForgotPasswordRequest request);
     Task<Result> ResetPassword(ResetPasswordRequest request);
+    Task<IdentityResult> ChangePassword(ChangePasswordRequest request);
     Task<List<User>> GetAllUsers();
 }
 
@@ -35,14 +36,16 @@ public class AuthService : IAuthService
     private readonly IEmailService _emailService;
     private readonly SignInManager<User> _signInManager;
     private readonly DataContext _dataContext;
+    private readonly ICurrentUserService _currentUserService;
 
-    public AuthService(UserManager<User> userManager, IConfiguration configuration, IEmailService emailService, SignInManager<User> signInManager, DataContext dataContext)
+    public AuthService(UserManager<User> userManager, IConfiguration configuration, IEmailService emailService, SignInManager<User> signInManager, DataContext dataContext, ICurrentUserService currentUserService)
     {
         _userManager = userManager;
         _configuration = configuration;
         _emailService = emailService;
         _signInManager = signInManager;
         _dataContext = dataContext;
+        _currentUserService = currentUserService;
     }
 
     public async Task<Result> ConfirmEmail(ConfirmEmailRequest request)
@@ -220,6 +223,15 @@ public class AuthService : IAuthService
             Succeeded = passwordChangeResult.Succeeded,
             Error = passwordChangeResult.Succeeded ? null : string.Join(", ", passwordChangeResult.Errors)
         };
+    }
+
+    public async Task<IdentityResult> ChangePassword(ChangePasswordRequest request)
+    {
+        var user = await _userManager.FindByIdAsync(_currentUserService.UserId.ToString());
+        var token = await _userManager.GeneratePasswordResetTokenAsync(user); //I think we can ignore these warnings cause the user will be logged in to be able to access this. So it should b found always and never null
+        var result = await _userManager.ResetPasswordAsync(user, token, request.NewPassword);
+
+        return result;
     }
 
     public async Task<List<User>> GetAllUsers()
