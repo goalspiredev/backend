@@ -1,4 +1,5 @@
-﻿using GoalspireBackend.Models;
+﻿using GoalspireBackend.Dto.Requests.Settings;
+using GoalspireBackend.Models;
 using GoalspireBackend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -29,8 +30,19 @@ public class SettingsController : ApiBaseController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [Authorize]
-    public async Task<ActionResult> Modify(Settings settings)
+    public async Task<ActionResult> Modify(SettingsRequest request)
     {
+        Settings settings = new Settings()
+        {
+            UserId = request.UserId,
+            ReducedAnimations = request.ReducedAnimations,
+            DefaultSnoozeDuration = TimeSpan.FromSeconds(request.DefaultSnoozeDurationSeconds),
+            DailyNotificationTime = request.DailyNotificationTime,
+            IanaTimeZone = request.IanaTimeZone,
+            GoalTags = request.GoalTags,
+            DisableEmailNotifications = request.DisableEmailNotifications
+        };
+
         var result = await _settingsService.ModifySettings(settings);
         if (!result.Succeeded)
         {
