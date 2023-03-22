@@ -228,8 +228,7 @@ public class AuthService : IAuthService
     public async Task<IdentityResult> ChangePassword(ChangePasswordRequest request)
     {
         var user = await _userManager.FindByIdAsync(_currentUserService.UserId.ToString());
-        var token = await _userManager.GeneratePasswordResetTokenAsync(user); //I think we can ignore these warnings cause the user will be logged in to be able to access this. So it should b found always and never null
-        var result = await _userManager.ResetPasswordAsync(user, token, request.NewPassword);
+        var result = await _userManager.ChangePasswordAsync(user, request.OldPassword, request.NewPassword);
 
         return result;
     }
