@@ -20,7 +20,11 @@ public class RemindingService : BackgroundService
         _serviceProvider = serviceProvider;
         _logger = logger;
 
-        _remindersCheckPeriod = TimeSpan.FromSeconds(configuration.GetValue<int>("Goals:Reminding:IntervalSeconds"));
+        var configVal = configuration.GetValue<int>("Goals:Reminding:IntervalSeconds");
+        if (configVal == 0) {
+            configVal = 60;
+        }
+        _remindersCheckPeriod = TimeSpan.FromSeconds(configVal);
     }
 
     bool ShouldRemindTask(Goal task)
