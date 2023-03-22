@@ -1028,17 +1028,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Settings"
+                "$ref": "#/components/schemas/SettingsRequest"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/Settings"
+                "$ref": "#/components/schemas/SettingsRequest"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/Settings"
+                "$ref": "#/components/schemas/SettingsRequest"
               }
             }
           }
@@ -1402,6 +1402,40 @@
           },
           "timeZone": {
             "$ref": "#/components/schemas/TimeZoneInfo"
+          },
+          "ianaTimeZone": {
+            "type": "string",
+            "nullable": true
+          },
+          "goalTags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "disableEmailNotifications": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SettingsRequest": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reducedAnimations": {
+            "type": "boolean"
+          },
+          "defaultSnoozeDurationSeconds": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dailyNotificationTime": {
+            "$ref": "#/components/schemas/TimeOnly"
           },
           "ianaTimeZone": {
             "type": "string",
