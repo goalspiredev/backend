@@ -32,6 +32,12 @@ public class SettingsService : ISettingsService
 
     public async Task<Result> ModifySettings(Settings settings)
     {
+        if (settings.GoalTags.Any(t => t == string.Empty))
+        {
+            throw new BadHttpRequestException("Tag name(s) mustn't be empty!");
+        }
+
+
         Settings savedSettings = await GetSettings(); //TODO: this could be throwing erros,
                                                       //BUT it shouldn't happen, because user gets assigned default settings upon creation.
                                                       //But the DB needs to be flushed cause old users don't have settings
