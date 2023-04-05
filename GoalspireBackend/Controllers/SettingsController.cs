@@ -48,6 +48,8 @@ public class SettingsController : ApiBaseController
         {
             return BadRequest(result.Error);
         }
-        return Ok();        
+        return Ok();
+
+        throw new NotImplementedException();
     }
 }
