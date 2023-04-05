@@ -45,6 +45,8 @@ public class GoalsService : IGoalsService
         goal.UserId = _userService.UserId!.Value;
         goal.CreatedAt = DateTime.UtcNow;
 
+        ValidateGoal(goal);
+
         _dataContext.Goals.Add(goal);
         await _dataContext.SaveChangesAsync();
 
@@ -75,6 +77,8 @@ public class GoalsService : IGoalsService
 
         goal.UpdatedAt = DateTime.UtcNow;
 
+        ValidateGoal(goal); // if it fails, it will throw exception and return 400
+
         _dataContext.Goals.Update(goal);
         await _dataContext.SaveChangesAsync();
 
@@ -97,5 +101,18 @@ public class GoalsService : IGoalsService
         await _dataContext.SaveChangesAsync();
 
         return Result.Success();
+    }
+
+    private void ValidateGoal(Goal goal)
+    {
+        if (goal.Title == string.Empty)
+            throw new BadHttpRequestException("Title mustn't be empty!");
+        //if(goal.Content == String.Empty) // I'd allow content to be empty, cause sometimes you just want a quick task with just the title
+        if (goal.Tags.Any(t => t == string.Empty))
+            throw new BadHttpRequestException("Tag name(s) mustn't be empty!");
+        if (goal.Priority > Goal.MaxPriority)
+            goal.Priority = Goal.MaxPriority;
+        if (goal.Priority < 0)
+            goal.Priority = 0;
     }
 }
