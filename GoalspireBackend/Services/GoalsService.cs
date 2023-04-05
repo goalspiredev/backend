@@ -112,5 +112,7 @@ public class GoalsService : IGoalsService
             throw new BadHttpRequestException("Tag name(s) mustn't be empty!");
         if (goal.Priority > Goal.MaxPriority)
             goal.Priority = Goal.MaxPriority;
+        if (goal.Priority < 0)
+            goal.Priority = 0;
     }
 }
